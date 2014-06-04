@@ -45,6 +45,10 @@ Constructor __init__(Response)
 		"""
 Body reader callable
 		"""
+		self.code = None
+		"""
+HTTP status code
+		"""
 		self.exception = None
 		"""
 Exception occurred while receiving an response.
@@ -53,6 +57,18 @@ Exception occurred while receiving an response.
 		"""
 Response headers
 		"""
+	#
+
+	def get_code(self):
+	#
+		"""
+Returns the HTTP status code for the request.
+
+:return: (int) HTTP status code; None otherwise
+:since:  v0.1.01
+		"""
+
+		return self.code
 	#
 
 	def get_error_message(self):
@@ -134,6 +150,19 @@ Sets the body reader callable of this response object.
 		"""
 
 		self.body_reader = body_reader
+	#
+
+	def _set_code(self, code):
+	#
+		"""
+Sets the HTTP status code for the request.
+
+:param code: HTTP status code; None otherwise
+
+:since: v0.1.01
+		"""
+
+		self.code = code
 	#
 
 	def _set_exception(self, exception):

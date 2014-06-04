@@ -23,6 +23,7 @@ NOTE_END //n"""
 # pylint: disable=import-error,invalid-name,no-name-in-module
 
 from base64 import b64encode
+import ssl
 
 try:
 #
@@ -124,6 +125,14 @@ IPv6 link local interface to be used for outgoing requests
 		"""
 Request path
 		"""
+		self.pem_cert_filename = None
+		"""
+Path and filename of the PEM-encoded certificate file
+		"""
+		self.pem_key_filename = None
+		"""
+Path and filename of the private key
+		"""
 		self.port = None
 		"""
 Request port
@@ -131,6 +140,10 @@ Request port
 		self.return_reader = return_reader
 		"""
 True if the client returns a callable reader supporting a size argument.
+		"""
+		self.scheme = None
+		"""
+Request scheme
 		"""
 		self.timeout = timeout
 		"""
@@ -183,10 +196,16 @@ Returns a connection to the HTTP server.
 		"""
 
 		url_elements = urlsplit(url)
+		self.scheme = url_elements.scheme.lower()
+
 		self.auth_username = (None if (url_elements.username == None) else url_elements.username)
 		self.auth_password = (None if (url_elements.password == None) else url_elements.password)
+
 		self.host = ("[{0}]".format(url_elements.hostname) if (":" in url_elements.hostname) else url_elements.hostname)
-		self.port = (http_client.HTTP_PORT if (url_elements.port == None) else url_elements.port)
+
+		if (url_elements.port != None): self.port = url_elements.port
+		elif (self.scheme == "https"): self.port = http_client.HTTPS_PORT
+		else: self.port = http_client.HTTP_PORT
 
 		self.path = url_elements.path
 		if (url_elements.query != ""): self.path = "{0}?{1}".format(self.path, url_elements.query)
@@ -201,6 +220,8 @@ Returns a connection to the HTTP server.
 :since:  v0.1.01
 		"""
 
+		# pylint: disable=star-args
+
 		if (self.connection == None):
 		#
 			if (":" in self.host):
@@ -210,11 +231,53 @@ Returns a connection to the HTTP server.
 			#
 			else: host = self.host
 
-			try: self.connection = http_client.HTTPConnection(host, self.port, timeout = self.timeout)
-			except TypeError: self.connection = http_client.HTTPConnection(host, self.port)
+			if (self.scheme == "https"):
+			#
+				kwargs = self._get_ssl_connection_arguments()
+
+				try: self.connection = http_client.HTTPSConnection(host, self.port, timeout = self.timeout, **kwargs)
+				except TypeError: self.connection = http_client.HTTPSConnection(host, self.port, **kwargs)
+			#)
+			else:
+			#
+				try: self.connection = http_client.HTTPConnection(host, self.port, timeout = self.timeout)
+				except TypeError: self.connection = http_client.HTTPConnection(host, self.port)
+			#
 		#
 
 		return self.connection
+	#
+
+	def _get_ssl_connection_arguments(self):
+	#
+		"""
+Returns arguments to be used for creating an SSL connection.
+
+:return: (dict) SSL connection arguments
+:since:  v0.1.00
+		"""
+
+		_return = { }
+
+		if (hasattr(ssl, "create_default_context")):
+		#
+			ssl_context = ssl.create_default_context()
+
+			if (self.pem_cert_filename != None):
+			#
+				if (self.pem_key_filename): ssl_context.load_cert_chain(self.pem_cert_filename, self.pem_key_filename)
+				else: ssl_context.load_cert_chain(self.pem_cert_filename)
+			#
+
+			_return['context'] = ssl_context
+		#
+		elif (self.pem_cert_filename != None):
+		#
+			if (self.pem_key_filename): _return['key_file'] = self.pem_key_filename
+			_return['cert_file'] = self.pem_cert_filename
+		#
+
+		return _return
 	#
 
 	def request(self, method, separator = ";", params = None, data = None):
@@ -258,7 +321,7 @@ Call a given request method on the connected HTTP server.
 
 			if (self.auth_username != None):
 			#
-				base64_data = b64encode(_PY_UNICODE("{0}:{1}".format(self.auth_username, self.auth_password), "utf-8"))
+				base64_data = b64encode(_PY_BYTES("{0}:{1}".format(self.auth_username, self.auth_password), "utf-8"))
 				if (type(base64_data) != str): base64_data = _PY_STR(base64_data, "raw_unicode_escape")
 
 				kwargs['headers'] = { "Authorization": "Basic {0}".format(base64_data) }
@@ -268,7 +331,7 @@ Call a given request method on the connected HTTP server.
 
 			_return = self._request(method, **kwargs)
 		#
-		except Exception as handled_exception: _return = { "headers": None, "body": handled_exception }
+		except Exception as handled_exception: _return = { "code": None, "headers": None, "body": handled_exception }
 
 		return _return
 	#
@@ -290,7 +353,7 @@ Sends the request to the connected HTTP server and returns the result.
 		connection.request(method, **kwargs)
 		response = connection.getresponse()
 
-		_return = { "headers": { } }
+		_return = { "code": http_client.CREATED, "headers": { } }
 		for header in response.getheaders(): _return['headers'][header[0].lower().replace("-", "_")] = header[1]
 
 		if (response.status == http_client.CREATED or response.status == http_client.OK or response.status == http_client.PARTIAL_CONTENT):
@@ -306,6 +369,23 @@ Sends the request to the connected HTTP server and returns the result.
 		else: _return['body'] = http_client.HTTPException("{0} {1}".format(str(response.status), str(response.reason)), response.status)
 
 		return _return
+	#
+
+	def request_delete(self, params = None, separator = ";", data = None):
+	#
+		"""
+Do a DELETE request on the connected HTTP server.
+
+:param params: Query parameters as dict
+:param separator: Query parameter separator
+:param data: HTTP body
+
+:return: (mixed) Response data; Exception on error
+:since:  v0.1.01
+		"""
+
+		params = self._build_request_parameters(params, separator)
+		return self.request("DELETE", separator, params, data)
 	#
 
 	def request_get(self, params = None, separator = ";"):
@@ -355,6 +435,56 @@ Do a POST request on the connected HTTP server.
 
 		params = self._build_request_parameters(params, separator)
 		return self.request("POST", separator, params, data)
+	#
+
+	def request_put(self, data = None, params = None, separator = ";"):
+	#
+		"""
+Do a PUT request on the connected HTTP server.
+
+:param data: HTTP body
+:param params: Query parameters as dict
+:param separator: Query parameter separator
+
+:return: (mixed) Response data; Exception on error
+:since:  v0.1.01
+		"""
+
+		params = self._build_request_parameters(params, separator)
+		return self.request("PUT", separator, params, data)
+	#
+
+	def request_options(self, params = None, separator = ";", data = None):
+	#
+		"""
+Do a OPTIONS request on the connected HTTP server.
+
+:param params: Query parameters as dict
+:param separator: Query parameter separator
+:param data: HTTP body
+
+:return: (mixed) Response data; Exception on error
+:since:  v0.1.01
+		"""
+
+		params = self._build_request_parameters(params, separator)
+		return self.request("OPTIONS", separator, params, data)
+	#
+
+	def request_trace(self, params = None, separator = ";"):
+	#
+		"""
+Do a TRACE request on the connected HTTP server.
+
+:param params: Query parameters as dict
+:param separator: Query parameter separator
+
+:return: (mixed) Response data; Exception on error
+:since:  v0.1.01
+		"""
+
+		params = self._build_request_parameters(params, separator)
+		return self.request("TRACE", separator, params)
 	#
 
 	def reset_headers(self):
@@ -420,6 +550,20 @@ addresses.
 		"""
 
 		self.ipv6_link_local_interface = interface
+	#
+
+	def set_pem_cert_file(self, cert_filename, key_filename = None):
+	#
+		"""
+Sets a PEM-encoded certificate filename to be used. "key_filename" is used
+if the private key is not part of the certificate file.
+
+:param cert_filename: Path and filename of the PEM-encoded certificate file
+:param key_filename: Path and filename of the private key
+		"""
+
+		self.pem_cert_filename = cert_filename
+		self.pem_key_filename = key_filename
 	#
 
 	def set_url(self, url):
