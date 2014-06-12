@@ -420,6 +420,23 @@ Do a HEAD request on the connected HTTP server.
 		return self.request("HEAD", separator, params)
 	#
 
+	def request_patch(self, data = None, params = None, separator = ";"):
+	#
+		"""
+Do a PATCH request on the connected HTTP server.
+
+:param data: HTTP body
+:param params: Query parameters as dict
+:param separator: Query parameter separator
+
+:return: (mixed) Response data; Exception on error
+:since:  v0.1.01
+		"""
+
+		params = self._build_request_parameters(params, separator)
+		return self.request("PATCH", separator, params, data)
+	#
+
 	def request_post(self, data = None, params = None, separator = ";"):
 	#
 		"""
@@ -584,7 +601,7 @@ Sets a new URL for all subsequent requests.
 	def get_headers(data):
 	#
 		"""
-Returns a RFC 2616 compliant dict of headers from the entire HTTP response.
+Returns a RFC 7231 compliant dict of headers from the entire HTTP response.
 
 :param data: Input message
 
