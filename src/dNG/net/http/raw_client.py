@@ -353,7 +353,7 @@ Sends the request to the connected HTTP server and returns the result.
 		connection.request(method, **kwargs)
 		response = connection.getresponse()
 
-		_return = { "code": http_client.CREATED, "headers": { } }
+		_return = { "code": response.status, "headers": { } }
 		for header in response.getheaders(): _return['headers'][header[0].lower().replace("-", "_")] = header[1]
 
 		if (response.status == http_client.CREATED or response.status == http_client.OK or response.status == http_client.PARTIAL_CONTENT):
