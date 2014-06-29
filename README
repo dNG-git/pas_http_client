@@ -1,5 +1,6 @@
 ----------------------------------------------------------------------------
 RFC compliant and simple HTTP client
+An abstracted programming interface for an HTTP client
 ----------------------------------------------------------------------------
 
 A python based, compliant and simple HTTP client encapsulating Python's

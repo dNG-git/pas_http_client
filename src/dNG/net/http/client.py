@@ -3,8 +3,7 @@
 
 """
 RFC compliant and simple HTTP client
-"""
-"""n// NOTE
+An abstracted programming interface for an HTTP client
 ----------------------------------------------------------------------------
 (C) direct Netware Group - All rights reserved
 http://www.direct-netware.de/redirect.py?py;rfc_http_client
@@ -17,8 +16,7 @@ http://www.direct-netware.de/redirect.py?licenses;mpl2
 ----------------------------------------------------------------------------
 #echo(rfcHttpClientVersion)#
 #echo(__FILEPATH__)#
-----------------------------------------------------------------------------
-NOTE_END //n"""
+"""
 
 from dNG.data.http.response import Response
 from .raw_client import RawClient

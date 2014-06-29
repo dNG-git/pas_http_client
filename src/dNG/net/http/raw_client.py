@@ -3,8 +3,7 @@
 
 """
 RFC compliant and simple HTTP client
-"""
-"""n// NOTE
+An abstracted programming interface for an HTTP client
 ----------------------------------------------------------------------------
 (C) direct Netware Group - All rights reserved
 http://www.direct-netware.de/redirect.py?py;rfc_http_client
@@ -17,8 +16,7 @@ http://www.direct-netware.de/redirect.py?licenses;mpl2
 ----------------------------------------------------------------------------
 #echo(rfcHttpClientVersion)#
 #echo(__FILEPATH__)#
-----------------------------------------------------------------------------
-NOTE_END //n"""
+"""
 
 # pylint: disable=import-error,invalid-name,no-name-in-module
 
@@ -28,12 +26,12 @@ import ssl
 try:
 #
 	import http.client as http_client
-	from urllib.parse import quote, urlsplit
+	from urllib.parse import quote, urlencode, urlsplit
 #
 except ImportError:
 #
 	import httplib as http_client
-	from urllib import quote
+	from urllib import quote, urlencode
 	from urlparse import urlsplit
 #
 
@@ -311,10 +309,19 @@ Call a given request method on the connected HTTP server.
 				path += params
 			#
 
+			headers = (None if (self.headers == None) else self.headers.copy())
 			kwargs = { "url": path }
 
 			if (data != None):
 			#
+				if (isinstance(data, dict)):
+				#
+					if (headers == None): headers = { }
+					if ("CONTENT-TYPE" not in headers): headers['CONTENT-TYPE'] = "application/x-www-form-urlencoded"
+
+					data = urlencode(data)
+				#
+
 				if (type(data) != _PY_BYTES_TYPE): data = _PY_BYTES(data, "raw_unicode_escape")
 				kwargs['body'] = data
 			#
@@ -325,9 +332,9 @@ Call a given request method on the connected HTTP server.
 				if (type(base64_data) != str): base64_data = _PY_STR(base64_data, "raw_unicode_escape")
 
 				kwargs['headers'] = { "Authorization": "Basic {0}".format(base64_data) }
-				if (self.headers != None): kwargs['headers'].update(self.headers)
+				if (headers != None): kwargs['headers'].update(headers)
 			#
-			elif (self.headers != None): kwargs['headers'] = self.headers
+			elif (headers != None): kwargs['headers'] = headers
 
 			_return = self._request(method, **kwargs)
 		#
@@ -356,7 +363,7 @@ Sends the request to the connected HTTP server and returns the result.
 		_return = { "code": response.status, "headers": { } }
 		for header in response.getheaders(): _return['headers'][header[0].lower().replace("-", "_")] = header[1]
 
-		if (response.status == http_client.CREATED or response.status == http_client.OK or response.status == http_client.PARTIAL_CONTENT):
+		if (response.status >= 200 and response.status < 400):
 		#
 			_return['body'] = None
 
@@ -609,6 +616,7 @@ Returns a RFC 7231 compliant dict of headers from the entire HTTP response.
 :since:  v0.1.01
 		"""
 
+		if (type(data) != str): data = _PY_STR(data, "raw_unicode_escape")
 		header = data.split("\r\n\r\n", 1)[0]
 		_return = Header.get_headers(header)
 

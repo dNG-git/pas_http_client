@@ -1,5 +1,6 @@
 ----------------------------------------------------------------------------
 RFC compliant and simple HTTP client
+An abstracted programming interface for an HTTP client
 ----------------------------------------------------------------------------
 (C) direct Netware Group - All rights reserved
 http://www.direct-netware.de/redirect.py?py;rfc_http_client
