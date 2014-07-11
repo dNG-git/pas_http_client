@@ -328,7 +328,10 @@ Call a given request method on the connected HTTP server.
 
 			if (self.auth_username != None):
 			#
-				base64_data = b64encode(_PY_BYTES("{0}:{1}".format(self.auth_username, self.auth_password), "utf-8"))
+				auth_data = "{0}:{1}".format(self.auth_username, self.auth_password)
+
+				if (type(data) != _PY_BYTES_TYPE): auth_data = _PY_BYTES(auth_data, "utf-8")
+				base64_data = b64encode(auth_data)
 				if (type(base64_data) != str): base64_data = _PY_STR(base64_data, "raw_unicode_escape")
 
 				kwargs['headers'] = { "Authorization": "Basic {0}".format(base64_data) }
@@ -373,7 +376,11 @@ Sends the request to the connected HTTP server and returns the result.
 				else: _return['body'] = response.read()
 			#
 		#
-		else: _return['body'] = http_client.HTTPException("{0} {1}".format(str(response.status), str(response.reason)), response.status)
+		else:
+		#
+			_return['body'] = http_client.HTTPException("{0} {1}".format(str(response.status), str(response.reason)), response.status)
+			if (self.event_handler != None): self.event_handler.debug("#echo(__FILEPATH__)# -RawClient._request()- reporting: {0:d} for '{1}'".format(response.status, response.read()))
+		#
 
 		return _return
 	#
@@ -520,6 +527,21 @@ Resets previously set headers.
 		"""
 
 		self.headers = { }
+	#
+
+	def set_basic_auth(self, username, password):
+	#
+		"""
+Sets the basix authentication data.
+
+:param username: Username
+:param password: Password
+
+:since: v0.1.01
+		"""
+
+		self.auth_username = ("" if (username == None) else username)
+		self.auth_password = ("" if (password == None) else password)
 	#
 
 	def set_header(self, name, value, value_append = False):
