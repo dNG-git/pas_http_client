@@ -330,7 +330,7 @@ Call a given request method on the connected HTTP server.
 			#
 				auth_data = "{0}:{1}".format(self.auth_username, self.auth_password)
 
-				if (type(data) != _PY_BYTES_TYPE): auth_data = _PY_BYTES(auth_data, "utf-8")
+				if (type(auth_data) != _PY_BYTES_TYPE): auth_data = _PY_BYTES(auth_data, "utf-8")
 				base64_data = b64encode(auth_data)
 				if (type(base64_data) != str): base64_data = _PY_STR(base64_data, "raw_unicode_escape")
 
