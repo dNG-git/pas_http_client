@@ -235,7 +235,7 @@ Returns a connection to the HTTP server.
 
 				try: self.connection = http_client.HTTPSConnection(host, self.port, timeout = self.timeout, **kwargs)
 				except TypeError: self.connection = http_client.HTTPSConnection(host, self.port, **kwargs)
-			#)
+			#
 			else:
 			#
 				try: self.connection = http_client.HTTPConnection(host, self.port, timeout = self.timeout)
@@ -363,24 +363,17 @@ Sends the request to the connected HTTP server and returns the result.
 		connection.request(method, **kwargs)
 		response = connection.getresponse()
 
-		_return = { "code": response.status, "headers": { } }
+		_return = { "code": response.status, "headers": { }, "body": None }
 		for header in response.getheaders(): _return['headers'][header[0].lower().replace("-", "_")] = header[1]
 
-		if (response.status >= 200 and response.status < 400):
-		#
-			_return['body'] = None
+		if (self.return_reader): _return['body_reader'] = response.read
 
-			if (method != "HEAD"):
-			#
-				if (self.return_reader): _return['body_reader'] = response.read
-				else: _return['body'] = response.read()
-			#
-		#
-		else:
+		if (response.status < 100 or response.status >= 400):
 		#
 			_return['body'] = http_client.HTTPException("{0} {1}".format(str(response.status), str(response.reason)), response.status)
 			if (self.event_handler != None): self.event_handler.debug("#echo(__FILEPATH__)# -RawClient._request()- reporting: {0:d} for '{1}'".format(response.status, response.read()))
 		#
+		elif (method != "HEAD" and (not self.return_reader)): _return['body'] = response.read()
 
 		return _return
 	#

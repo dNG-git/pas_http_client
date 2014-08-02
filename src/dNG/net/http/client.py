@@ -71,7 +71,7 @@ Initializes an HTTP response object based on the received raw data.
 		_return._set_headers(raw_response['headers'])
 
 		if (isinstance(raw_response['body'], Exception)): _return._set_exception(raw_response['body'])
-		elif ("body_reader" in raw_response): _return._set_body_reader(raw_response['body_reader'])
+		if ("body_reader" in raw_response): _return._set_body_reader(raw_response['body_reader'])
 
 		return _return
 	#
