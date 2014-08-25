@@ -172,9 +172,9 @@ Build a HTTP query string based on the given parameters and the separator.
 
 			for key in params:
 			#
-				if (type(params[key]) != bool): params_list.append("{0}={1}".format(quote(str(key)), quote(str(params[key]))))
-				elif (params[key]): params_list.append("{0}=1".format(quote(str(key))))
-				else: params_list.append("{0}=0".format(quote(str(key))))
+				if (type(params[key]) != bool): params_list.append("{0}={1}".format(quote(str(key), ""), quote(str(params[key]), "")))
+				elif (params[key]): params_list.append("{0}=1".format(quote(str(key), "")))
+				else: params_list.append("{0}=0".format(quote(str(key), "")))
 			#
 
 			_return = separator.join(params_list)
