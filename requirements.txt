@@ -1,0 +1,1 @@
+-e git+http://git.direct-netware.de/py/rfc_basics/#egg=pyRfcBasics
