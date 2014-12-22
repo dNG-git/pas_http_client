@@ -81,7 +81,7 @@ Reads chunked data from the given reader to the given callback.
 		is_last_chunk = False
 		size_read = 0
 		size_unread = 5
-		timeout_time = (-1 if (timeout == None) else time() + timeout)
+		timeout_time = (-1 if (timeout is None) else time() + timeout)
 
 		chunk_buffer = self.chunked_reader_buffer
 		chunk_size = len(chunk_buffer)
@@ -111,7 +111,7 @@ Get size for next chunk
 			if (chunk_size < 1):
 			#
 				newline_position = (part_data
-				                    if (chunk_buffer == None) else
+				                    if (chunk_buffer is None) else
 				                    chunk_buffer + part_data
 				                   ).find(ChunkedReaderMixin.BINARY_NEWLINE)
 
@@ -119,13 +119,13 @@ Get size for next chunk
 
 				if (newline_position < 0):
 				#
-					if (chunk_buffer == None): chunk_buffer = part_data
+					if (chunk_buffer is None): chunk_buffer = part_data
 					else: chunk_buffer += part_data
 
 					part_size = 0
 					size_unread += 3
 				#
-				elif (chunk_buffer != None):
+				elif (chunk_buffer is not None):
 				#
 					chunk_octets = (chunk_buffer + part_data)[:newline_position]
 					part_data = (chunk_buffer + part_data)[2 + newline_position:]
@@ -142,7 +142,7 @@ Get size for next chunk
 				#
 				else: part_size = 0
 
-				if (chunk_octets != None):
+				if (chunk_octets is not None):
 				#
 					chunk_size = int(chunk_octets, 16)
 
@@ -157,7 +157,7 @@ Get size for next chunk
 
 				if (size_read > size):
 				#
-					if (self.chunked_reader_buffer == None): self.chunked_reader_buffer = part_data
+					if (self.chunked_reader_buffer is None): self.chunked_reader_buffer = part_data
 					else: self.chunked_reader_buffer += part_data
 				#
 				elif ((size_read + part_size) > size):

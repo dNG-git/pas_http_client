@@ -196,12 +196,12 @@ Returns a connection to the HTTP server.
 		url_elements = urlsplit(url)
 		self.scheme = url_elements.scheme.lower()
 
-		self.auth_username = (None if (url_elements.username == None) else url_elements.username)
-		self.auth_password = (None if (url_elements.password == None) else url_elements.password)
+		self.auth_username = (None if (url_elements.username is None) else url_elements.username)
+		self.auth_password = (None if (url_elements.password is None) else url_elements.password)
 
 		self.host = ("[{0}]".format(url_elements.hostname) if (":" in url_elements.hostname) else url_elements.hostname)
 
-		if (url_elements.port != None): self.port = url_elements.port
+		if (url_elements.port is not None): self.port = url_elements.port
 		elif (self.scheme == "https"): self.port = http_client.HTTPS_PORT
 		else: self.port = http_client.HTTP_PORT
 
@@ -220,12 +220,12 @@ Returns a connection to the HTTP server.
 
 		# pylint: disable=star-args
 
-		if (self.connection == None):
+		if (self.connection is None):
 		#
 			if (":" in self.host):
 			#
 				host = self.host[1:-1]
-				if (host[:6] == "fe80::" and self.ipv6_link_local_interface != None): host = "{0}%{1}".format(self.host[1:-1], self.ipv6_link_local_interface)
+				if (host[:6] == "fe80::" and self.ipv6_link_local_interface is not None): host = "{0}%{1}".format(self.host[1:-1], self.ipv6_link_local_interface)
 			#
 			else: host = self.host
 
@@ -261,7 +261,7 @@ Returns arguments to be used for creating an SSL connection.
 		#
 			ssl_context = ssl.create_default_context()
 
-			if (self.pem_cert_filename != None):
+			if (self.pem_cert_filename is not None):
 			#
 				if (self.pem_key_filename): ssl_context.load_cert_chain(self.pem_cert_filename, self.pem_key_filename)
 				else: ssl_context.load_cert_chain(self.pem_cert_filename)
@@ -269,7 +269,7 @@ Returns arguments to be used for creating an SSL connection.
 
 			_return['context'] = ssl_context
 		#
-		elif (self.pem_cert_filename != None):
+		elif (self.pem_cert_filename is not None):
 		#
 			if (self.pem_key_filename): _return['key_file'] = self.pem_key_filename
 			_return['cert_file'] = self.pem_cert_filename
@@ -295,7 +295,7 @@ Call a given request method on the connected HTTP server.
 		# global: _PY_BYTES, _PY_BYTES_TYPE, _PY_STR, _PY_UNICODE
 		# pylint: disable=broad-except,star-args
 
-		if (self.event_handler != None): self.event_handler.debug("#echo(__FILEPATH__)# -{0!r}.request({1}, separator, params, data)- (#echo(__LINE__)#)".format(self, method))
+		if (self.event_handler is not None): self.event_handler.debug("#echo(__FILEPATH__)# -{0!r}.request({1}, separator, params, data)- (#echo(__LINE__)#)".format(self, method))
 
 		try:
 		#
@@ -309,14 +309,14 @@ Call a given request method on the connected HTTP server.
 				path += params
 			#
 
-			headers = (None if (self.headers == None) else self.headers.copy())
+			headers = (None if (self.headers is None) else self.headers.copy())
 			kwargs = { "url": path }
 
-			if (data != None):
+			if (data is not None):
 			#
 				if (isinstance(data, dict)):
 				#
-					if (headers == None): headers = { }
+					if (headers is None): headers = { }
 					if ("CONTENT-TYPE" not in headers): headers['CONTENT-TYPE'] = "application/x-www-form-urlencoded"
 
 					data = urlencode(data)
@@ -326,7 +326,7 @@ Call a given request method on the connected HTTP server.
 				kwargs['body'] = data
 			#
 
-			if (self.auth_username != None):
+			if (self.auth_username is not None):
 			#
 				auth_data = "{0}:{1}".format(self.auth_username, self.auth_password)
 
@@ -335,9 +335,9 @@ Call a given request method on the connected HTTP server.
 				if (type(base64_data) != str): base64_data = _PY_STR(base64_data, "raw_unicode_escape")
 
 				kwargs['headers'] = { "Authorization": "Basic {0}".format(base64_data) }
-				if (headers != None): kwargs['headers'].update(headers)
+				if (headers is not None): kwargs['headers'].update(headers)
 			#
-			elif (headers != None): kwargs['headers'] = headers
+			elif (headers is not None): kwargs['headers'] = headers
 
 			_return = self._request(method, **kwargs)
 		#
@@ -371,7 +371,7 @@ Sends the request to the connected HTTP server and returns the result.
 		if (response.status < 100 or response.status >= 400):
 		#
 			_return['body'] = http_client.HTTPException("{0} {1}".format(str(response.status), str(response.reason)), response.status)
-			if (self.event_handler != None): self.event_handler.debug("#echo(__FILEPATH__)# -RawClient._request()- reporting: {0:d} for '{1}'".format(response.status, response.read()))
+			if (self.event_handler is not None): self.event_handler.debug("#echo(__FILEPATH__)# -RawClient._request()- reporting: {0:d} for '{1}'".format(response.status, response.read()))
 		#
 		elif (method != "HEAD" and (not self.return_reader)): _return['body'] = response.read()
 
@@ -533,8 +533,8 @@ Sets the basix authentication data.
 :since: v0.1.01
 		"""
 
-		self.auth_username = ("" if (username == None) else username)
-		self.auth_password = ("" if (password == None) else password)
+		self.auth_username = ("" if (username is None) else username)
+		self.auth_password = ("" if (password is None) else password)
 	#
 
 	def set_header(self, name, value, value_append = False):
@@ -549,10 +549,10 @@ Sets a header.
 :since: v0.1.01
 		"""
 
-		if (self.headers == None): self.headers = { }
+		if (self.headers is None): self.headers = { }
 		name = name.upper()
 
-		if (value == None):
+		if (value is None):
 		#
 			if (name in self.headers): del(self.headers[name])
 		#
@@ -635,7 +635,7 @@ Returns a RFC 7231 compliant dict of headers from the entire HTTP response.
 		header = data.split("\r\n\r\n", 1)[0]
 		_return = Header.get_headers(header)
 
-		if (_return != None and "@nameless" in _return and "\n" not in _return['@nameless']):
+		if (_return is not None and "@nameless" in _return and "\n" not in _return['@nameless']):
 		#
 			_return['@http'] = _return['@nameless']
 			del(_return['@nameless'])

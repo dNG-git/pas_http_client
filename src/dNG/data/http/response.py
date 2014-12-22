@@ -79,7 +79,7 @@ processing the request.
 :since:  v0.1.01
 		"""
 
-		return (None if (self.exception == None) else str(self.exception))
+		return (None if (self.exception is None) else str(self.exception))
 	#
 
 	def get_exception(self):
@@ -119,7 +119,7 @@ exception occurred while processing the request.
 :since:  v0.1.01
 		"""
 
-		return (self.body_reader != None and self.exception == None)
+		return (self.body_reader is not None and self.exception is None)
 	#
 
 	def read(self, size = -1):
