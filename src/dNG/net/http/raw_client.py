@@ -148,7 +148,7 @@ Request scheme
 Socket timeout in seconds
 		"""
 
-		if (str != _PY_UNICODE_TYPE and type(url) == _PY_UNICODE_TYPE): url = _PY_STR(url, "utf-8")
+		if (str is not _PY_UNICODE_TYPE and type(url) is _PY_UNICODE_TYPE): url = _PY_STR(url, "utf-8")
 		self._configure(url)
 	#
 
@@ -166,13 +166,13 @@ Build a HTTP query string based on the given parameters and the separator.
 
 		_return = None
 
-		if (type(params) == dict):
+		if (isinstance(params, dict)):
 		#
 			params_list = [ ]
 
 			for key in params:
 			#
-				if (type(params[key]) != bool): params_list.append("{0}={1}".format(quote(str(key), ""), quote(str(params[key]), "")))
+				if (type(params[key]) is not bool): params_list.append("{0}={1}".format(quote(str(key), ""), quote(str(params[key]), "")))
 				elif (params[key]): params_list.append("{0}=1".format(quote(str(key), "")))
 				else: params_list.append("{0}=0".format(quote(str(key), "")))
 			#
@@ -295,13 +295,13 @@ Call a given request method on the connected HTTP server.
 		# global: _PY_BYTES, _PY_BYTES_TYPE, _PY_STR, _PY_UNICODE
 		# pylint: disable=broad-except,star-args
 
-		if (self.event_handler is not None): self.event_handler.debug("#echo(__FILEPATH__)# -{0!r}.request({1}, separator, params, data)- (#echo(__LINE__)#)".format(self, method))
+		if (self.event_handler is not None): self.event_handler.debug("#echo(__FILEPATH__)# -{0!r}.request({1})- (#echo(__LINE__)#)".format(self, method))
 
 		try:
 		#
 			path = self.path
 
-			if (type(params) == str):
+			if (type(params) is str):
 			#
 				if ("?" not in path): path += "?"
 				elif (not path.endswith(separator)): path += separator
@@ -322,7 +322,7 @@ Call a given request method on the connected HTTP server.
 					data = urlencode(data)
 				#
 
-				if (type(data) != _PY_BYTES_TYPE): data = _PY_BYTES(data, "raw_unicode_escape")
+				if (type(data) is not _PY_BYTES_TYPE): data = _PY_BYTES(data, "raw_unicode_escape")
 				kwargs['body'] = data
 			#
 
@@ -330,9 +330,9 @@ Call a given request method on the connected HTTP server.
 			#
 				auth_data = "{0}:{1}".format(self.auth_username, self.auth_password)
 
-				if (type(auth_data) != _PY_BYTES_TYPE): auth_data = _PY_BYTES(auth_data, "utf-8")
+				if (type(auth_data) is not _PY_BYTES_TYPE): auth_data = _PY_BYTES(auth_data, "utf-8")
 				base64_data = b64encode(auth_data)
-				if (type(base64_data) != str): base64_data = _PY_STR(base64_data, "raw_unicode_escape")
+				if (type(base64_data) is not str): base64_data = _PY_STR(base64_data, "raw_unicode_escape")
 
 				kwargs['headers'] = { "Authorization": "Basic {0}".format(base64_data) }
 				if (headers is not None): kwargs['headers'].update(headers)
@@ -559,7 +559,7 @@ Sets a header.
 		elif (name not in self.headers): self.headers[name] = value
 		elif (value_append):
 		#
-			if (type(self.headers[name]) == list): self.headers[name].append(value)
+			if (type(self.headers[name]) is list): self.headers[name].append(value)
 			else: self.headers[name] = [ self.headers[name], value ]
 		#
 	#
@@ -615,7 +615,7 @@ Sets a new URL for all subsequent requests.
 :since: v0.1.01
 		"""
 
-		if (str != _PY_UNICODE_TYPE and type(url) == _PY_UNICODE_TYPE): url = _PY_STR(url, "utf-8")
+		if (str is not _PY_UNICODE_TYPE and type(url) is _PY_UNICODE_TYPE): url = _PY_STR(url, "utf-8")
 		self._configure(url)
 	#
 
@@ -631,7 +631,7 @@ Returns a RFC 7231 compliant dict of headers from the entire HTTP response.
 :since:  v0.1.01
 		"""
 
-		if (type(data) != str): data = _PY_STR(data, "raw_unicode_escape")
+		if (type(data) is not str): data = _PY_STR(data, "raw_unicode_escape")
 		header = data.split("\r\n\r\n", 1)[0]
 		_return = Header.get_headers(header)
 
