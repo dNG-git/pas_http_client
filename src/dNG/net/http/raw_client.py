@@ -123,13 +123,13 @@ IPv6 link local interface to be used for outgoing requests
 		"""
 Request path
 		"""
-		self.pem_cert_filename = None
+		self.pem_cert_file_name = None
 		"""
-Path and filename of the PEM-encoded certificate file
+Path and file name of the PEM-encoded certificate file
 		"""
-		self.pem_key_filename = None
+		self.pem_key_file_name = None
 		"""
-Path and filename of the private key
+Path and file name of the private key
 		"""
 		self.port = None
 		"""
@@ -261,18 +261,18 @@ Returns arguments to be used for creating an SSL connection.
 		#
 			ssl_context = ssl.create_default_context()
 
-			if (self.pem_cert_filename is not None):
+			if (self.pem_cert_file_name is not None):
 			#
-				if (self.pem_key_filename): ssl_context.load_cert_chain(self.pem_cert_filename, self.pem_key_filename)
-				else: ssl_context.load_cert_chain(self.pem_cert_filename)
+				if (self.pem_key_file_name): ssl_context.load_cert_chain(self.pem_cert_file_name, self.pem_key_file_name)
+				else: ssl_context.load_cert_chain(self.pem_cert_file_name)
 			#
 
 			_return['context'] = ssl_context
 		#
-		elif (self.pem_cert_filename is not None):
+		elif (self.pem_cert_file_name is not None):
 		#
-			if (self.pem_key_filename): _return['key_file'] = self.pem_key_filename
-			_return['cert_file'] = self.pem_cert_filename
+			if (self.pem_key_file_name): _return['key_file'] = self.pem_key_file_name
+			_return['cert_file'] = self.pem_cert_file_name
 		#
 
 		return _return
@@ -591,18 +591,18 @@ addresses.
 		self.ipv6_link_local_interface = interface
 	#
 
-	def set_pem_cert_file(self, cert_filename, key_filename = None):
+	def set_pem_cert_file(self, cert_file_name, key_file_name = None):
 	#
 		"""
-Sets a PEM-encoded certificate filename to be used. "key_filename" is used
+Sets a PEM-encoded certificate file name to be used. "key_file_name" is used
 if the private key is not part of the certificate file.
 
-:param cert_filename: Path and filename of the PEM-encoded certificate file
-:param key_filename: Path and filename of the private key
+:param cert_file_name: Path and file name of the PEM-encoded certificate file
+:param key_file_name: Path and file name of the private key
 		"""
 
-		self.pem_cert_filename = cert_filename
-		self.pem_key_filename = key_filename
+		self.pem_cert_file_name = cert_file_name
+		self.pem_key_file_name = key_file_name
 	#
 
 	def set_url(self, url):
