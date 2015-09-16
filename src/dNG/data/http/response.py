@@ -122,19 +122,19 @@ exception occurred while processing the request.
 		return (self.body_reader is not None and self.exception is None)
 	#
 
-	def read(self, size = -1):
+	def read(self, n = 0):
 	#
 		"""
 Reads data using the given body reader. Chunked transfer-encoded data is
 handled automatically.
 
-:param size: Bytes to read
+:param n: How many bytes to read from the current position (0 means until
+          EOF)
 
-:return: (bytes) Data received
-
+:return: (bytes) Data; None if EOF
 		"""
 
-		return (self.body_reader() if (size < 1) else self.body_reader(size))
+		return (self.body_reader() if (n < 1) else self.body_reader(n))
 	#
 
 	def _set_body_reader(self, body_reader):
