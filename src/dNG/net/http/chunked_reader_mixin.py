@@ -172,6 +172,8 @@ Get size for next chunk
 				size_read += part_size
 			#
 		#
+
+		if (size_unread > 0): raise IOError("Timeout occured before EOF")
 	#
 
 	def _reset_chunked_buffer(self):
