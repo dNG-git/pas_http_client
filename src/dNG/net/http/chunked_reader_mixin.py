@@ -97,7 +97,7 @@ Reads chunked data from the given reader to the given callback.
 Read remaining data from last chunk
 			"""
 
-			part_size = (4096 if (size_unread > 4096) else size_unread)
+			part_size = (16384 if (size_unread > 16384) else size_unread)
 			part_data = reader(part_size)
 			part_size = len(part_data)
 
