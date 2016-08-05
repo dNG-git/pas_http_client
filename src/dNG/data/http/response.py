@@ -109,6 +109,18 @@ Returns the response header if defined.
 		return self.headers.get(name)
 	#
 
+	def get_headers(self):
+	#
+		"""
+Returns the response headers.
+
+:return: (dict) Dictionary of headers
+:since:  v0.1.03
+		"""
+
+		return self.headers
+	#
+
 	def is_readable(self):
 	#
 		"""
