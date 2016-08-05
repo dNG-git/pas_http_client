@@ -198,7 +198,7 @@ Sets the headers of the response.
 :since: v0.1.01
 		"""
 
-		self.headers = headers
+		if (headers is not None): self.headers = headers
 	#
 #
 
