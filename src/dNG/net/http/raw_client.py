@@ -149,6 +149,8 @@ Socket timeout in seconds
 		"""
 
 		if (str is not _PY_UNICODE_TYPE and type(url) is _PY_UNICODE_TYPE): url = _PY_STR(url, "utf-8")
+		if (type(url) is not str): raise TypeError("URL given is invalid")
+
 		self._configure(url)
 	#
 
@@ -195,6 +197,8 @@ Returns a connection to the HTTP server.
 
 		url_elements = urlsplit(url)
 		self.scheme = url_elements.scheme.lower()
+
+		if (url_elements.hostname is None): raise TypeError("URL given is invalid")
 
 		self.auth_username = (None if (url_elements.username is None) else url_elements.username)
 		self.auth_password = (None if (url_elements.password is None) else url_elements.password)
