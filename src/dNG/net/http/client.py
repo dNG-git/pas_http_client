@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-##j## BOF
 
 """
 RFC compliant and simple HTTP client
@@ -19,11 +18,11 @@ https://www.direct-netware.de/redirect?licenses;mpl2
 """
 
 from dNG.data.http.response import Response
+
 from .raw_client import RawClient
 
 class Client(RawClient):
-#
-	"""
+    """
 HTTP client for requesting and parsing data.
 
 :author:    direct Netware Group
@@ -32,13 +31,12 @@ HTTP client for requesting and parsing data.
 :since:     v0.1.00
 :license:   https://www.direct-netware.de/redirect?licenses;mpl2
             Mozilla Public License, v. 2.0
-	"""
+    """
 
-	# pylint: disable=arguments-differ
+    # pylint: disable=arguments-differ
 
-	def __init__(self, url, timeout = 6, event_handler = None):
-	#
-		"""
+    def __init__(self, url, timeout = 6, event_handler = None):
+        """
 Constructor __init__(Http)
 
 :param url: URL to be called
@@ -48,37 +46,35 @@ Constructor __init__(Http)
 :param event_handler: EventHandler to use
 
 :since: v0.1.00
-		"""
+        """
 
-		RawClient.__init__(self, url, timeout, True, event_handler)
-	#
+        RawClient.__init__(self, url, timeout, True, event_handler)
+    #
 
-	def _init_response(self, raw_response):
-	#
-		"""
+    def _init_response(self, raw_response):
+        """
 Initializes an HTTP response object based on the received raw data.
 
 :param raw_response: Raw response dict
 
 :return: (object) Response object
 :since:  v0.1.01
-		"""
+        """
 
-		# pylint: disable=protected-access
+        # pylint: disable=protected-access
 
-		_return = Response()
-		_return._set_code(raw_response['code'])
-		_return._set_headers(raw_response['headers'])
+        _return = Response()
+        _return._set_code(raw_response['code'])
+        _return._set_headers(raw_response['headers'])
 
-		if (isinstance(raw_response['body'], Exception)): _return._set_exception(raw_response['body'])
-		if ("body_reader" in raw_response): _return._set_body_reader(raw_response['body_reader'])
+        if (isinstance(raw_response['body'], Exception)): _return._set_exception(raw_response['body'])
+        if ("body_reader" in raw_response): _return._set_body_reader(raw_response['body_reader'])
 
-		return _return
-	#
+        return _return
+    #
 
-	def request(self, method, separator = ";", params = None, data = None):
-	#
-		"""
+    def request(self, method, separator = ";", params = None, data = None):
+        """
 Call a given request method on the connected HTTP server.
 
 :param method: HTTP method
@@ -88,11 +84,9 @@ Call a given request method on the connected HTTP server.
 
 :return: (object) Response object
 :since:  v0.1.00
-		"""
+        """
 
-		raw_response = RawClient.request(self, method, separator, params, data)
-		return self._init_response(raw_response)
-	#
+        raw_response = RawClient.request(self, method, separator, params, data)
+        return self._init_response(raw_response)
+    #
 #
-
-##j## EOF

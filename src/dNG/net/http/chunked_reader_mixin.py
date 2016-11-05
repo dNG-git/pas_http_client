@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-##j## BOF
 
 """
 RFC compliant and simple HTTP client
@@ -23,19 +22,15 @@ https://www.direct-netware.de/redirect?licenses;mpl2
 from time import time
 
 try:
-#
-	_PY_BYTES = unicode.encode
-	_PY_BYTES_DECL = str
-#
+    _PY_BYTES = unicode.encode
+    _PY_BYTES_DECL = str
 except NameError:
-#
-	_PY_BYTES = str.encode
-	_PY_BYTES_DECL = lambda x: bytes(x, "raw_unicode_escape")
+    _PY_BYTES = str.encode
+    _PY_BYTES_DECL = lambda x: bytes(x, "raw_unicode_escape")
 #
 
 class ChunkedReaderMixin(object):
-#
-	"""
+    """
 HTTP reader handling chunked transfer-encoded data.
 
 :author:    direct Netware Group
@@ -44,30 +39,28 @@ HTTP reader handling chunked transfer-encoded data.
 :since:     v0.1.00
 :license:   https://www.direct-netware.de/redirect?licenses;mpl2
             Mozilla Public License, v. 2.0
-	"""
+    """
 
-	BINARY_NEWLINE = _PY_BYTES_DECL("\r\n")
-	"""
+    BINARY_NEWLINE = _PY_BYTES_DECL("\r\n")
+    """
 Newline bytes used in raw HTTP data
-	"""
+    """
 
-	def __init__(self):
-	#
-		"""
+    def __init__(self):
+        """
 Constructor __init__(ChunkedReaderMixin)
 
 :since: v0.1.00
-		"""
+        """
 
-		self.chunked_reader_buffer = None
-		"""
+        self.chunked_reader_buffer = None
+        """
 Input pointer
-		"""
-	#
+        """
+    #
 
-	def _read_chunked_data(self, reader, callback, size = -1, timeout = None):
-	#
-		"""
+    def _read_chunked_data(self, reader, callback, size = -1, timeout = None):
+        """
 Reads chunked data from the given reader to the given callback.
 
 :param reader: Read callback
@@ -76,116 +69,99 @@ Reads chunked data from the given reader to the given callback.
 :param timeout: Timeout in seconds
 
 :since: v0.1.00
-		"""
+        """
 
-		is_last_chunk = False
-		size_read = 0
-		size_unread = 5
-		timeout_time = (-1 if (timeout is None) else time() + timeout)
+        is_last_chunk = False
+        size_read = 0
+        size_unread = 5
+        timeout_time = (-1 if (timeout is None) else time() + timeout)
 
-		chunk_buffer = self.chunked_reader_buffer
-		chunk_size = len(chunk_buffer)
+        chunk_buffer = self.chunked_reader_buffer
+        chunk_size = len(chunk_buffer)
 
-		self.chunked_reader_buffer = None
+        self.chunked_reader_buffer = None
 
-		while (size_unread > 0
-		       and (size_read < size or chunk_size > 0)
-		       and (timeout_time < 0 or time() < timeout_time)
-		      ):
-		#
-			"""
+        while (size_unread > 0
+               and (size_read < size or chunk_size > 0)
+               and (timeout_time < 0 or time() < timeout_time)
+              ):
+            """
 Read remaining data from last chunk
-			"""
+            """
 
-			part_size = (16384 if (size_unread > 16384) else size_unread)
-			part_data = reader(part_size)
-			part_size = len(part_data)
+            part_size = (16384 if (size_unread > 16384) else size_unread)
+            part_data = reader(part_size)
+            part_size = len(part_data)
 
-			if (part_size < 1): raise OSError("Reader pointer could not be read before timeout occurred")
-			size_unread -= part_size
+            if (part_size < 1): raise OSError("Reader pointer could not be read before timeout occurred")
+            size_unread -= part_size
 
-			"""
+            """
 Get size for next chunk
-			"""
+            """
 
-			if (chunk_size < 1):
-			#
-				newline_position = (part_data
-				                    if (chunk_buffer is None) else
-				                    chunk_buffer + part_data
-				                   ).find(ChunkedReaderMixin.BINARY_NEWLINE)
+            if (chunk_size < 1):
+                newline_position = (part_data
+                                    if (chunk_buffer is None) else
+                                    chunk_buffer + part_data
+                                   ).find(ChunkedReaderMixin.BINARY_NEWLINE)
 
-				chunk_octets = None
+                chunk_octets = None
 
-				if (newline_position < 0):
-				#
-					if (chunk_buffer is None): chunk_buffer = part_data
-					else: chunk_buffer += part_data
+                if (newline_position < 0):
+                    if (chunk_buffer is None): chunk_buffer = part_data
+                    else: chunk_buffer += part_data
 
-					part_size = 0
-					size_unread += 3
-				#
-				elif (chunk_buffer is not None):
-				#
-					chunk_octets = (chunk_buffer + part_data)[:newline_position]
-					part_data = (chunk_buffer + part_data)[2 + newline_position:]
-					part_size = len(part_data)
+                    part_size = 0
+                    size_unread += 3
+                elif (chunk_buffer is not None):
+                    chunk_octets = (chunk_buffer + part_data)[:newline_position]
+                    part_data = (chunk_buffer + part_data)[2 + newline_position:]
+                    part_size = len(part_data)
 
-					chunk_buffer = None
-				#
-				elif (not is_last_chunk):
-				#
-					chunk_octets = part_data[:newline_position]
-					part_data = part_data[2 + newline_position:]
+                    chunk_buffer = None
+                elif (not is_last_chunk):
+                    chunk_octets = part_data[:newline_position]
+                    part_data = part_data[2 + newline_position:]
 
-					part_size = len(part_data)
-				#
-				else: part_size = 0
+                    part_size = len(part_data)
+                else: part_size = 0
 
-				if (chunk_octets is not None):
-				#
-					chunk_size = int(chunk_octets, 16)
+                if (chunk_octets is not None):
+                    chunk_size = int(chunk_octets, 16)
 
-					if (chunk_size == 0): is_last_chunk = True
-					else: size_unread += chunk_size
-				#
-			#
+                    if (chunk_size == 0): is_last_chunk = True
+                    else: size_unread += chunk_size
+                #
+            #
 
-			if (part_size > 0):
-			#
-				chunk_size -= part_size
+            if (part_size > 0):
+                chunk_size -= part_size
 
-				if (size_read > size):
-				#
-					if (self.chunked_reader_buffer is None): self.chunked_reader_buffer = part_data
-					else: self.chunked_reader_buffer += part_data
-				#
-				elif ((size_read + part_size) > size):
-				#
-					size_expected = size - (size_read + part_size)
+                if (size_read > size):
+                    if (self.chunked_reader_buffer is None): self.chunked_reader_buffer = part_data
+                    else: self.chunked_reader_buffer += part_data
+                elif ((size_read + part_size) > size):
+                    size_expected = size - (size_read + part_size)
 
-					self.chunked_reader_buffer = part_data[size_expected:]
-					callback(part_data[:size_expected])
-				#
-				else: callback(part_data)
+                    self.chunked_reader_buffer = part_data[size_expected:]
+                    callback(part_data[:size_expected])
+                else: callback(part_data)
 
-				size_read += part_size
-			#
-		#
+                size_read += part_size
+            #
+        #
 
-		if (size_unread > 0): raise IOError("Timeout occured before EOF")
-	#
+        if (size_unread > 0): raise IOError("Timeout occured before EOF")
+    #
 
-	def _reset_chunked_buffer(self):
-	#
-		"""
+    def _reset_chunked_buffer(self):
+        """
 Resets the buffer of chunked data remaining after the last read call.
 
 :since: v0.1.00
-		"""
+        """
 
-		self.chunked_reader_buffer = None
-	#
+        self.chunked_reader_buffer = None
+    #
 #
-
-##j## EOF
