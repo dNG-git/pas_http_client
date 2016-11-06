@@ -5,4 +5,5 @@ nbproject
 /_extras
 /build
 /make*.py*
-/rfc_http_client.*
+/py_rfc_http_client.*
+/rfc_http_client.py.*
