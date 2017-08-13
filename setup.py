@@ -16,6 +16,13 @@ https://www.direct-netware.de/redirect?licenses;mpl2
 setup.py
 """
 
+from os import path
+
+from distutils.core import setup
+
+from dNG.distutils.command.build_py import BuildPy
+from dNG.distutils.temporary_directory import TemporaryDirectory
+
 def get_version():
     """
 Returns the version currently in development.
@@ -24,14 +31,8 @@ Returns the version currently in development.
 :since:  v0.1.01
     """
 
-    return "v0.1.03"
+    return "v1.0.0"
 #
-
-from dNG.distutils.command.build_py import BuildPy
-from dNG.distutils.temporary_directory import TemporaryDirectory
-
-from distutils.core import setup
-from os import path
 
 with TemporaryDirectory(dir = ".") as build_directory:
     parameters = { "pyRfcHttpClientVersion": get_version() }
@@ -41,7 +42,7 @@ with TemporaryDirectory(dir = ".") as build_directory:
 
     _build_path = path.join(build_directory, "src")
 
-    setup(name = "RFC compliant and simple HTTP client",
+    setup(name = "dng-rfc-http-client",
           version = get_version(),
           description = "An abstracted programming interface for an HTTP client",
           long_description = """A python based, compliant and simple HTTP client encapsulating Python's native one.""",
@@ -51,6 +52,8 @@ with TemporaryDirectory(dir = ".") as build_directory:
           url = "https://www.direct-netware.de/redirect?py;rfc_http_client",
 
           platforms = [ "any" ],
+
+          setup_requires = "dng-builder-suite",
 
           package_dir = { "": _build_path },
           packages = [ "dNG" ],

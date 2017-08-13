@@ -20,6 +20,7 @@ https://www.direct-netware.de/redirect?licenses;mpl2
 # pylint: disable=import-error,invalid-name,no-name-in-module
 
 from base64 import b64encode
+from weakref import proxy, ProxyTypes
 import ssl
 
 try:
@@ -66,7 +67,7 @@ Minimal HTTP client abstraction layer returning raw HTTP responses.
 Newline bytes used in raw HTTP data
     """
 
-    def __init__(self, url, timeout = 30, return_reader = False, event_handler = None):
+    def __init__(self, url, timeout = 30, return_reader = False, log_handler = None):
         """
 Constructor __init__(RawClient)
 
@@ -74,7 +75,7 @@ Constructor __init__(RawClient)
 :param timeout: Socket timeout in seconds
 :param return_reader: Returns a body reader instead of reading the response
                       if true.
-:param event_handler: EventHandler to use
+:param log_handler: Log handler to use
 
 :since: v0.1.01
         """
@@ -93,11 +94,6 @@ Request authorisation password
         """
 HTTP connection
         """
-        self.event_handler = event_handler
-        """
-The EventHandler is called whenever debug messages should be logged or
-errors happened.
-        """
         self.headers = None
         """
 Request headers
@@ -109,6 +105,11 @@ Request host
         self.ipv6_link_local_interface = None
         """
 IPv6 link local interface to be used for outgoing requests
+        """
+        self._log_handler = None
+        """
+The log handler is called whenever debug messages should be logged or errors
+happened.
         """
         self.path = None
         """
@@ -142,6 +143,75 @@ Socket timeout in seconds
         if (str is not _PY_UNICODE_TYPE and type(url) is _PY_UNICODE_TYPE): url = _PY_STR(url, "utf-8")
         if (type(url) is not str): raise TypeError("URL given is invalid")
 
+        if (log_handler is not None): self.log_handler = log_handler
+        self._configure(url)
+    #
+
+    @property
+    def log_handler(self):
+        """
+Returns the LogHandler.
+
+:return: (object) LogHandler in use
+:since:  v1.0.0
+        """
+
+        return self._log_handler
+    #
+
+    @log_handler.setter
+    def log_handler(self, log_handler):
+        """
+Sets the LogHandler.
+
+:param log_handler: LogHandler to use
+
+:since: v1.0.0
+        """
+
+        self._log_handler = (log_handler if (isinstance(log_handler, ProxyTypes)) else proxy(log_handler))
+    #
+
+    @property
+    def url(self):
+        """
+Returns the URL used for all subsequent requests.
+
+:return: (str) URL to be called
+:since:  v1.0.0
+        """
+
+        _return = "{0}://".format(self.scheme)
+
+        if (self.auth_username is not None or self.auth_password is not None):
+            if (self.auth_username is not None): _return += quote(self.auth_username)
+            _return += ":"
+            if (self.auth_password is not None): _return += quote(self.auth_password)
+            _return += "@"
+        #
+
+        _return += self.host
+
+        if ((self.scheme != "https" or self.port != http_client.HTTPS_PORT)
+            and (self.scheme != "http" or self.port != http_client.HTTP_PORT)
+           ): _return += ":{0:d}".format(self.port)
+
+        _return += self.path
+
+        return _return
+    #
+
+    @url.setter
+    def url(self, url):
+        """
+Sets a new URL for all subsequent requests.
+
+:param url: URL to be called
+
+:since: v1.0.0
+        """
+
+        if (str is not _PY_UNICODE_TYPE and type(url) is _PY_UNICODE_TYPE): url = _PY_STR(url, "utf-8")
         self._configure(url)
     #
 
@@ -270,10 +340,10 @@ Call a given request method on the connected HTTP server.
 :since:  v0.1.01
         """
 
-        # global: _PY_BYTES, _PY_BYTES_TYPE, _PY_STR, _PY_UNICODE
+        # global: _PY_BYTES, _PY_BYTES_TYPE, _PY_STR
         # pylint: disable=broad-except,star-args
 
-        if (self.event_handler is not None): self.event_handler.debug("#echo(__FILEPATH__)# -{0!r}.request({1})- (#echo(__LINE__)#)".format(self, method))
+        if (self._log_handler is not None): self._log_handler.debug("#echo(__FILEPATH__)# -{0!r}.request({1})- (#echo(__LINE__)#)".format(self, method))
 
         try:
             path = self.path
@@ -340,7 +410,7 @@ Sends the request to the connected HTTP server and returns the result.
 
         if (response.status < 100 or response.status >= 400):
             _return['body'] = http_client.HTTPException("{0} {1}".format(str(response.status), str(response.reason)), response.status)
-            if (self.event_handler is not None): self.event_handler.debug("#echo(__FILEPATH__)# -RawClient._request()- reporting: {0:d} for '{1}'".format(response.status, response.read()))
+            if (self._log_handler is not None): self._log_handler.debug("#echo(__FILEPATH__)# -RawClient._request()- reporting: {0:d} for '{1}'".format(response.status, response.read()))
         elif (method != "HEAD" and (not self.return_reader)): _return['body'] = response.read()
 
         return _return
@@ -518,18 +588,6 @@ Sets a header.
         #
     #
 
-    def set_event_handler(self, event_handler = None):
-        """
-Sets the EventHandler.
-
-:param event_handler: EventHandler to use
-
-:since: v0.1.01
-        """
-
-        self.event_handler = event_handler
-    #
-
     def set_ipv6_link_local_interface(self, interface):
         """
 Forces the given interface to be used for outgoing IPv6 link local
@@ -554,19 +612,6 @@ if the private key is not part of the certificate file.
 
         self.pem_cert_file_name = cert_file_name
         self.pem_key_file_name = key_file_name
-    #
-
-    def set_url(self, url):
-        """
-Sets a new URL for all subsequent requests.
-
-:param url: URL to be called
-
-:since: v0.1.01
-        """
-
-        if (str is not _PY_UNICODE_TYPE and type(url) is _PY_UNICODE_TYPE): url = _PY_STR(url, "utf-8")
-        self._configure(url)
     #
 
     @staticmethod

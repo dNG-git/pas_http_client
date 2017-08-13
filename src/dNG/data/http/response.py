@@ -40,52 +40,81 @@ Constructor __init__(Response)
         """
 Body reader callable
         """
-        self.code = None
+        self._code = None
         """
 HTTP status code
         """
-        self.exception = None
+        self._exception = None
         """
 Exception occurred while receiving an response.
         """
-        self.headers = { }
+        self._headers = { }
         """
 Response headers
         """
     #
 
-    def get_code(self):
+    @property
+    def code(self):
         """
 Returns the HTTP status code for the request.
 
 :return: (int) HTTP status code; None otherwise
-:since:  v0.1.01
+:since:  v1.0.0
         """
 
-        return self.code
+        return self._code
     #
 
-    def get_error_message(self):
+    @property
+    def error_message(self):
         """
 Returns the error message based on the exception that occurred while
 processing the request.
 
 :return: (str) Error message; None otherwise
-:since:  v0.1.01
+:since:  v1.0.0
         """
 
-        return (None if (self.exception is None) else str(self.exception))
+        exception = self.exception
+        return (None if (exception is None) else str(exception))
     #
 
-    def get_exception(self):
+    @property
+    def exception(self):
         """
 Returns the exception that occurred while processing the request.
 
 :return: (object) Exception instance; None otherwise
-:since:  v0.1.01
+:since:  v1.0.0
         """
 
-        return self.exception
+        return self._exception
+    #
+
+    @property
+    def headers(self):
+        """
+Returns the response headers.
+
+:return: (dict) Dictionary of headers
+:since:  v1.0.0
+        """
+
+        return self._headers.copy()
+    #
+
+    @property
+    def is_readable(self):
+        """
+Returns true if the body reader is ready to receive the response and no
+exception occurred while processing the request.
+
+:return: (bool) True if ready
+:since:  v1.0.0
+        """
+
+        return (self.body_reader is not None and self.exception is None)
     #
 
     def get_header(self, name):
@@ -99,30 +128,7 @@ Returns the response header if defined.
         """
 
         name = name.lower().replace("-", "_")
-        return self.headers.get(name)
-    #
-
-    def get_headers(self):
-        """
-Returns the response headers.
-
-:return: (dict) Dictionary of headers
-:since:  v0.1.03
-        """
-
-        return self.headers
-    #
-
-    def is_readable(self):
-        """
-Returns true if the body reader is ready to receive the response and no
-exception occurred while processing the request.
-
-:return: (bool) True if ready
-:since:  v0.1.01
-        """
-
-        return (self.body_reader is not None and self.exception is None)
+        return self._headers.get(name)
     #
 
     def read(self, n = 0):
@@ -160,7 +166,7 @@ Sets the HTTP status code for the request.
 :since: v0.1.01
         """
 
-        self.code = code
+        self._code = code
     #
 
     def _set_exception(self, exception):
@@ -172,7 +178,7 @@ Sets the exception occurred while processing the request.
 :since: v0.1.01
         """
 
-        self.exception = exception
+        self._exception = exception
     #
 
     def _set_headers(self, headers):
@@ -184,6 +190,6 @@ Sets the headers of the response.
 :since: v0.1.01
         """
 
-        if (headers is not None): self.headers = headers
+        if (headers is not None): self._headers = headers
     #
 #
