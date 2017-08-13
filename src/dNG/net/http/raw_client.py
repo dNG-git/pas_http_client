@@ -57,7 +57,7 @@ Minimal HTTP client abstraction layer returning raw HTTP responses.
 :author:    direct Netware Group
 :copyright: (C) direct Netware Group - All rights reserved
 :package:   rfc_http_client.py
-:since:     v0.1.01
+:since:     v0.1.1
 :license:   https://www.direct-netware.de/redirect?licenses;mpl2
             Mozilla Public License, v. 2.0
     """
@@ -77,7 +77,7 @@ Constructor __init__(RawClient)
                       if true.
 :param log_handler: Log handler to use
 
-:since: v0.1.01
+:since: v0.1.1
         """
 
         # global: _PY_STR, _PY_UNICODE_TYPE
@@ -223,7 +223,7 @@ Build a HTTP query string based on the given parameters and the separator.
 :param separator: Query parameter separator
 
 :return: (mixed) Response data; Exception on error
-:since:  v0.1.01
+:since:  v0.1.1
         """
 
         _return = None
@@ -249,7 +249,7 @@ Returns a connection to the HTTP server.
 
 :param url: URL to be called
 
-:since: v0.1.01
+:since: v0.1.1
         """
 
         url_elements = urlsplit(url)
@@ -275,7 +275,7 @@ Returns a connection to the HTTP server.
 Returns a connection to the HTTP server.
 
 :return: (mixed) Response data; Exception on error
-:since:  v0.1.01
+:since:  v0.1.1
         """
 
         # pylint: disable=star-args
@@ -305,7 +305,7 @@ Returns a connection to the HTTP server.
 Returns arguments to be used for creating an SSL connection.
 
 :return: (dict) SSL connection arguments
-:since:  v0.1.00
+:since:  v0.1.1
         """
 
         _return = { }
@@ -337,7 +337,7 @@ Call a given request method on the connected HTTP server.
 :param data: HTTP body
 
 :return: (dict) Response data; 'body' may contain the catched exception
-:since:  v0.1.01
+:since:  v0.1.1
         """
 
         # global: _PY_BYTES, _PY_BYTES_TYPE, _PY_STR
@@ -394,7 +394,7 @@ Sends the request to the connected HTTP server and returns the result.
 :param method: HTTP method
 
 :return: (dict) Response data; 'body' may contain the catched Exception
-:since:  v0.1.01
+:since:  v0.1.1
         """
 
         # pylint: disable=star-args
@@ -425,7 +425,7 @@ Do a DELETE request on the connected HTTP server.
 :param data: HTTP body
 
 :return: (mixed) Response data; Exception on error
-:since:  v0.1.01
+:since:  v0.1.1
         """
 
         params = self._build_request_parameters(params, separator)
@@ -440,7 +440,7 @@ Do a GET request on the connected HTTP server.
 :param separator: Query parameter separator
 
 :return: (mixed) Response data; Exception on error
-:since:  v0.1.01
+:since:  v0.1.1
         """
 
         params = self._build_request_parameters(params, separator)
@@ -455,7 +455,7 @@ Do a HEAD request on the connected HTTP server.
 :param separator: Query parameter separator
 
 :return: (mixed) Response data; Exception on error
-:since:  v0.1.01
+:since:  v0.1.1
         """
 
         params = self._build_request_parameters(params, separator)
@@ -471,7 +471,7 @@ Do a PATCH request on the connected HTTP server.
 :param separator: Query parameter separator
 
 :return: (mixed) Response data; Exception on error
-:since:  v0.1.01
+:since:  v0.1.1
         """
 
         params = self._build_request_parameters(params, separator)
@@ -487,7 +487,7 @@ Do a POST request on the connected HTTP server.
 :param separator: Query parameter separator
 
 :return: (mixed) Response data; Exception on error
-:since:  v0.1.01
+:since:  v0.1.1
         """
 
         params = self._build_request_parameters(params, separator)
@@ -503,7 +503,7 @@ Do a PUT request on the connected HTTP server.
 :param separator: Query parameter separator
 
 :return: (mixed) Response data; Exception on error
-:since:  v0.1.01
+:since:  v0.1.1
         """
 
         params = self._build_request_parameters(params, separator)
@@ -519,7 +519,7 @@ Do a OPTIONS request on the connected HTTP server.
 :param data: HTTP body
 
 :return: (mixed) Response data; Exception on error
-:since:  v0.1.01
+:since:  v0.1.1
         """
 
         params = self._build_request_parameters(params, separator)
@@ -534,7 +534,7 @@ Do a TRACE request on the connected HTTP server.
 :param separator: Query parameter separator
 
 :return: (mixed) Response data; Exception on error
-:since:  v0.1.01
+:since:  v0.1.1
         """
 
         params = self._build_request_parameters(params, separator)
@@ -545,7 +545,7 @@ Do a TRACE request on the connected HTTP server.
         """
 Resets previously set headers.
 
-:since: v0.1.01
+:since: v0.1.1
         """
 
         self.headers = { }
@@ -558,7 +558,7 @@ Sets the basix authentication data.
 :param username: Username
 :param password: Password
 
-:since: v0.1.01
+:since: v0.1.1
         """
 
         self.auth_username = ("" if (username is None) else username)
@@ -573,7 +573,7 @@ Sets a header.
 :param value: Header value as string or array
 :param value_append: True if headers should be appended
 
-:since: v0.1.01
+:since: v0.1.1
         """
 
         if (self.headers is None): self.headers = { }
@@ -595,7 +595,7 @@ addresses.
 
 :param interface: Header name
 
-:since: v0.1.01
+:since: v0.1.1
         """
 
         self.ipv6_link_local_interface = interface
@@ -608,6 +608,8 @@ if the private key is not part of the certificate file.
 
 :param cert_file_name: Path and file name of the PEM-encoded certificate file
 :param key_file_name: Path and file name of the private key
+
+:since: v0.1.1
         """
 
         self.pem_cert_file_name = cert_file_name
@@ -622,7 +624,7 @@ Returns a RFC 7231 compliant dict of headers from the entire HTTP response.
 :param data: Input message
 
 :return: (str) Dict with parsed headers; None on error
-:since:  v0.1.01
+:since:  v0.1.1
         """
 
         if (type(data) is not str): data = _PY_STR(data, "raw_unicode_escape")

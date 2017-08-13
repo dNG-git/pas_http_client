@@ -36,7 +36,7 @@ HTTP reader handling chunked transfer-encoded data.
 :author:    direct Netware Group
 :copyright: (C) direct Netware Group - All rights reserved
 :package:   rfc_http_client.py
-:since:     v0.1.00
+:since:     v0.1.0
 :license:   https://www.direct-netware.de/redirect?licenses;mpl2
             Mozilla Public License, v. 2.0
     """
@@ -50,7 +50,7 @@ Newline bytes used in raw HTTP data
         """
 Constructor __init__(ChunkedReaderMixin)
 
-:since: v0.1.00
+:since: v0.1.0
         """
 
         self.chunked_reader_buffer = None
@@ -68,7 +68,7 @@ Reads chunked data from the given reader to the given callback.
 :param size: Byte size to read
 :param timeout: Timeout in seconds
 
-:since: v0.1.00
+:since: v0.1.0
         """
 
         is_last_chunk = False
@@ -159,7 +159,7 @@ Get size for next chunk
         """
 Resets the buffer of chunked data remaining after the last read call.
 
-:since: v0.1.00
+:since: v0.1.0
         """
 
         self.chunked_reader_buffer = None

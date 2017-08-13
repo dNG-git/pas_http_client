@@ -28,7 +28,7 @@ HTTP client for requesting and parsing data.
 :author:    direct Netware Group
 :copyright: (C) direct Netware Group - All rights reserved
 :package:   rfc_http_client.py
-:since:     v0.1.00
+:since:     v0.1.0
 :license:   https://www.direct-netware.de/redirect?licenses;mpl2
             Mozilla Public License, v. 2.0
     """
@@ -45,7 +45,7 @@ Constructor __init__(Http)
                       if true.
 :param event_handler: EventHandler to use
 
-:since: v0.1.00
+:since: v0.1.0
         """
 
         RawClient.__init__(self, url, timeout, True, event_handler)
@@ -58,7 +58,7 @@ Initializes an HTTP response object based on the received raw data.
 :param raw_response: Raw response dict
 
 :return: (object) Response object
-:since:  v0.1.01
+:since:  v0.1.1
         """
 
         # pylint: disable=protected-access
@@ -83,7 +83,7 @@ Call a given request method on the connected HTTP server.
 :param data: HTTP body
 
 :return: (object) Response object
-:since:  v0.1.00
+:since:  v0.1.0
         """
 
         raw_response = RawClient.request(self, method, separator, params, data)
