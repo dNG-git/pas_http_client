@@ -1,11 +1,11 @@
 # -*- coding: utf-8 -*-
 
 """
-RFC compliant and simple HTTP client
-An abstracted programming interface for an HTTP client
+direct PAS
+Python Application Services
 ----------------------------------------------------------------------------
 (C) direct Netware Group - All rights reserved
-https://www.direct-netware.de/redirect?py;rfc_http_client
+https://www.direct-netware.de/redirect?pas;http;client
 
 This Source Code Form is subject to the terms of the Mozilla Public License,
 v. 2.0. If a copy of the MPL was not distributed with this file, You can
@@ -13,7 +13,7 @@ obtain one at http://mozilla.org/MPL/2.0/.
 ----------------------------------------------------------------------------
 https://www.direct-netware.de/redirect?licenses;mpl2
 ----------------------------------------------------------------------------
-#echo(rfcHttpClientVersion)#
+#echo(pasHttpClientVersion)#
 #echo(__FILEPATH__)#
 """
 
@@ -21,19 +21,20 @@ class Response(object):
     """
 HTTP response object handling chunked transfer-encoded data transparently.
 
-:author:    direct Netware Group
-:copyright: (C) direct Netware Group - All rights reserved
-:package:   rfc_http_client.py
-:since:     v0.1.1
-:license:   https://www.direct-netware.de/redirect?licenses;mpl2
-            Mozilla Public License, v. 2.0
+:author:     direct Netware Group
+:copyright:  (C) direct Netware Group - All rights reserved
+:package:    pas.http
+:subpackage: client
+:since:      v1.0.0
+:license:    https://www.direct-netware.de/redirect?licenses;mpl2
+             Mozilla Public License, v. 2.0
     """
 
     def __init__(self):
         """
 Constructor __init__(Response)
 
-:since: v0.1.1
+:since: v1.0.0
         """
 
         self.body_reader = None
@@ -124,7 +125,7 @@ Returns the response header if defined.
 :param name: Header name
 
 :return: (str) Header value if set; None otherwise
-:since:  v0.1.1
+:since:  v1.0.0
         """
 
         name = name.lower().replace("-", "_")
@@ -140,7 +141,7 @@ handled automatically.
           EOF)
 
 :return: (bytes) Data; None if EOF
-:since:  v0.1.1
+:since:  v1.0.0
         """
 
         return (self.body_reader() if (n < 1) else self.body_reader(n))
@@ -152,7 +153,7 @@ Sets the body reader callable of this response object.
 
 :param body_reader: Body reader callable
 
-:since: v0.1.1
+:since: v1.0.0
         """
 
         self.body_reader = body_reader
@@ -164,7 +165,7 @@ Sets the HTTP status code for the request.
 
 :param code: HTTP status code; None otherwise
 
-:since: v0.1.1
+:since: v1.0.0
         """
 
         self._code = code
@@ -176,7 +177,7 @@ Sets the exception occurred while processing the request.
 
 :param exception: Exception object
 
-:since: v0.1.1
+:since: v1.0.0
         """
 
         self._exception = exception
@@ -188,7 +189,7 @@ Sets the headers of the response.
 
 :param headers: HTTP response headers
 
-:since: v0.1.1
+:since: v1.0.0
         """
 
         if (headers is not None): self._headers = headers

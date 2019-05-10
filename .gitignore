@@ -1,9 +1,12 @@
 __py*
 .*
+*.egg-info
 *.pyc
 nbproject
 /_extras
 /build
-/make*.py*
-/py_rfc_http_client.*
-/rfc_http_client.py.*
+/dist
+/makefile.*
+/MANIFEST
+/pas_http_client*
+/pas-http-client*

@@ -1,11 +1,11 @@
 # -*- coding: utf-8 -*-
 
 """
-RFC compliant and simple HTTP client
-An abstracted programming interface for an HTTP client
+direct PAS
+Python Application Services
 ----------------------------------------------------------------------------
 (C) direct Netware Group - All rights reserved
-https://www.direct-netware.de/redirect?py;rfc_http_client
+https://www.direct-netware.de/redirect?pas;http;client
 
 This Source Code Form is subject to the terms of the Mozilla Public License,
 v. 2.0. If a copy of the MPL was not distributed with this file, You can
@@ -13,7 +13,7 @@ obtain one at http://mozilla.org/MPL/2.0/.
 ----------------------------------------------------------------------------
 https://www.direct-netware.de/redirect?licenses;mpl2
 ----------------------------------------------------------------------------
-#echo(rfcHttpClientVersion)#
+#echo(pasHttpClientVersion)#
 #echo(__FILEPATH__)#
 """
 
@@ -21,27 +21,23 @@ https://www.direct-netware.de/redirect?licenses;mpl2
 
 from time import time
 
-try:
-    _PY_BYTES = unicode.encode
-    _PY_BYTES_DECL = str
-except NameError:
-    _PY_BYTES = str.encode
-    _PY_BYTES_DECL = lambda x: bytes(x, "raw_unicode_escape")
-#
+from dpt_runtime.binary import Binary
+from dpt_runtime.io_exception import IOException
 
 class ChunkedReaderMixin(object):
     """
 HTTP reader handling chunked transfer-encoded data.
 
-:author:    direct Netware Group
-:copyright: (C) direct Netware Group - All rights reserved
-:package:   rfc_http_client.py
-:since:     v0.1.0
-:license:   https://www.direct-netware.de/redirect?licenses;mpl2
-            Mozilla Public License, v. 2.0
+:author:     direct Netware Group
+:copyright:  (C) direct Netware Group - All rights reserved
+:package:    pas.http
+:subpackage: client
+:since:      v1.0.0
+:license:    https://www.direct-netware.de/redirect?licenses;mpl2
+             Mozilla Public License, v. 2.0
     """
 
-    BINARY_NEWLINE = _PY_BYTES_DECL("\r\n")
+    BINARY_NEWLINE = Binary.bytes("\r\n")
     """
 Newline bytes used in raw HTTP data
     """
@@ -50,12 +46,12 @@ Newline bytes used in raw HTTP data
         """
 Constructor __init__(ChunkedReaderMixin)
 
-:since: v0.1.0
+:since: v1.0.0
         """
 
-        self.chunked_reader_buffer = None
+        self._chunked_reader_buffer = None
         """
-Input pointer
+Bytes buffer
         """
     #
 
@@ -68,7 +64,7 @@ Reads chunked data from the given reader to the given callback.
 :param size: Byte size to read
 :param timeout: Timeout in seconds
 
-:since: v0.1.0
+:since: v1.0.0
         """
 
         is_last_chunk = False
@@ -76,10 +72,10 @@ Reads chunked data from the given reader to the given callback.
         size_unread = 5
         timeout_time = (-1 if (timeout is None) else time() + timeout)
 
-        chunk_buffer = self.chunked_reader_buffer
+        chunk_buffer = self._chunked_reader_buffer
         chunk_size = len(chunk_buffer)
 
-        self.chunked_reader_buffer = None
+        self._chunked_reader_buffer = None
 
         while (size_unread > 0
                and (size_read < size or chunk_size > 0)
@@ -93,7 +89,7 @@ Read remaining data from last chunk
             part_data = reader(part_size)
             part_size = len(part_data)
 
-            if (part_size < 1): raise OSError("Reader pointer could not be read before timeout occurred")
+            if (part_size < 1): raise IOException("Reader pointer could not be read before timeout occurred")
             size_unread -= part_size
 
             """
@@ -139,12 +135,12 @@ Get size for next chunk
                 chunk_size -= part_size
 
                 if (size_read > size):
-                    if (self.chunked_reader_buffer is None): self.chunked_reader_buffer = part_data
-                    else: self.chunked_reader_buffer += part_data
+                    if (self._chunked_reader_buffer is None): self._chunked_reader_buffer = part_data
+                    else: self._chunked_reader_buffer += part_data
                 elif ((size_read + part_size) > size):
                     size_expected = size - (size_read + part_size)
 
-                    self.chunked_reader_buffer = part_data[size_expected:]
+                    self._chunked_reader_buffer = part_data[size_expected:]
                     callback(part_data[:size_expected])
                 else: callback(part_data)
 
@@ -152,16 +148,16 @@ Get size for next chunk
             #
         #
 
-        if (size_unread > 0): raise IOError("Timeout occured before EOF")
+        if (size_unread > 0): raise IOException("Timeout occurred before EOF")
     #
 
     def _reset_chunked_buffer(self):
         """
 Resets the buffer of chunked data remaining after the last read call.
 
-:since: v0.1.0
+:since: v1.0.0
         """
 
-        self.chunked_reader_buffer = None
+        self._chunked_reader_buffer = None
     #
 #

@@ -1,11 +1,11 @@
 # -*- coding: utf-8 -*-
 
 """
-RFC compliant and simple HTTP client
-An abstracted programming interface for an HTTP client
+direct PAS
+Python Application Services
 ----------------------------------------------------------------------------
 (C) direct Netware Group - All rights reserved
-https://www.direct-netware.de/redirect?py;rfc_http_client
+https://www.direct-netware.de/redirect?pas;http;client
 
 This Source Code Form is subject to the terms of the Mozilla Public License,
 v. 2.0. If a copy of the MPL was not distributed with this file, You can
@@ -13,7 +13,7 @@ obtain one at http://mozilla.org/MPL/2.0/.
 ----------------------------------------------------------------------------
 https://www.direct-netware.de/redirect?licenses;mpl2
 ----------------------------------------------------------------------------
-#echo(rfcHttpClientVersion)#
+#echo(pasHttpClientVersion)#
 #echo(__FILEPATH__)#
 """
 
@@ -30,34 +30,22 @@ except ImportError:
     from urlparse import urlsplit
 #
 
-from .abstract_raw_client import AbstractRawClient
+from dpt_runtime.binary import Binary
+from dpt_runtime.type_exception import TypeException
 
-try:
-    _PY_BYTES = unicode.encode
-    _PY_BYTES_DECL = str
-    _PY_BYTES_TYPE = str
-    _PY_STR = unicode.encode
-    _PY_UNICODE = str.decode
-    _PY_UNICODE_TYPE = unicode
-except NameError:
-    _PY_BYTES = str.encode
-    _PY_BYTES_DECL = lambda x: bytes(x, "raw_unicode_escape")
-    _PY_BYTES_TYPE = bytes
-    _PY_STR = bytes.decode
-    _PY_UNICODE = bytes.decode
-    _PY_UNICODE_TYPE = str
-#
+from .abstract_raw_client import AbstractRawClient
 
 class RawClient(AbstractRawClient):
     """
 Minimal HTTP client abstraction layer returning raw HTTP responses.
 
-:author:    direct Netware Group
-:copyright: (C) direct Netware Group - All rights reserved
-:package:   rfc_http_client.py
-:since:     v0.1.1
-:license:   https://www.direct-netware.de/redirect?licenses;mpl2
-            Mozilla Public License, v. 2.0
+:author:     direct Netware Group
+:copyright:  (C) direct Netware Group - All rights reserved
+:package:    pas.http
+:subpackage: client
+:since:      v1.0.0
+:license:    https://www.direct-netware.de/redirect?licenses;mpl2
+             Mozilla Public License, v. 2.0
     """
 
     def __init__(self, url, timeout = 30, return_reader = False, log_handler = None):
@@ -70,10 +58,8 @@ Constructor __init__(RawClient)
                       if true.
 :param log_handler: Log handler to use
 
-:since: v0.1.1
+:since: v1.0.0
         """
-
-        # global: _PY_STR, _PY_UNICODE_TYPE
 
         self.pem_cert_file_name = None
         """
@@ -122,13 +108,13 @@ Configures the HTTP connection parameters for later use.
 
 :param url: URL to be called
 
-:since: v0.1.1
+:since: v1.0.0
         """
 
         url_elements = urlsplit(url)
         self.scheme = url_elements.scheme.lower()
 
-        if (url_elements.hostname is None): raise TypeError("URL given is invalid")
+        if (url_elements.hostname is None): raise TypeException("URL given is invalid")
 
         self.auth_username = (None if (url_elements.username is None) else url_elements.username)
         self.auth_password = (None if (url_elements.password is None) else url_elements.password)
@@ -148,7 +134,7 @@ Configures the HTTP connection parameters for later use.
 Returns a connection to the HTTP server.
 
 :return: (mixed) Response data; Exception on error
-:since:  v0.1.1
+:since:  v1.0.0
         """
 
         # pylint: disable=star-args
@@ -178,7 +164,7 @@ Returns a connection to the HTTP server.
 Returns arguments to be used for creating an SSL connection.
 
 :return: (dict) SSL connection arguments
-:since:  v0.1.1
+:since:  v1.0.0
         """
 
         _return = { }
@@ -207,7 +193,7 @@ Sends the request to the connected HTTP server and returns the result.
 :param method: HTTP method
 
 :return: (dict) Response data; 'body' may contain the catched Exception
-:since:  v0.1.1
+:since:  v1.0.0
         """
 
         # pylint: disable=star-args
@@ -238,7 +224,7 @@ Do a DELETE request on the connected HTTP server.
 :param data: HTTP body
 
 :return: (mixed) Response data; Exception on error
-:since:  v0.1.1
+:since:  v1.0.0
         """
 
         params = self._build_request_parameters(params, separator)
@@ -253,7 +239,7 @@ Do a GET request on the connected HTTP server.
 :param separator: Query parameter separator
 
 :return: (mixed) Response data; Exception on error
-:since:  v0.1.1
+:since:  v1.0.0
         """
 
         params = self._build_request_parameters(params, separator)
@@ -268,7 +254,7 @@ Do a HEAD request on the connected HTTP server.
 :param separator: Query parameter separator
 
 :return: (mixed) Response data; Exception on error
-:since:  v0.1.1
+:since:  v1.0.0
         """
 
         params = self._build_request_parameters(params, separator)
@@ -284,7 +270,7 @@ Do a PATCH request on the connected HTTP server.
 :param separator: Query parameter separator
 
 :return: (mixed) Response data; Exception on error
-:since:  v0.1.1
+:since:  v1.0.0
         """
 
         params = self._build_request_parameters(params, separator)
@@ -300,7 +286,7 @@ Do a POST request on the connected HTTP server.
 :param separator: Query parameter separator
 
 :return: (mixed) Response data; Exception on error
-:since:  v0.1.1
+:since:  v1.0.0
         """
 
         params = self._build_request_parameters(params, separator)
@@ -316,7 +302,7 @@ Do a PUT request on the connected HTTP server.
 :param separator: Query parameter separator
 
 :return: (mixed) Response data; Exception on error
-:since:  v0.1.1
+:since:  v1.0.0
         """
 
         params = self._build_request_parameters(params, separator)
@@ -332,7 +318,7 @@ Do a OPTIONS request on the connected HTTP server.
 :param data: HTTP body
 
 :return: (mixed) Response data; Exception on error
-:since:  v0.1.1
+:since:  v1.0.0
         """
 
         params = self._build_request_parameters(params, separator)
@@ -347,7 +333,7 @@ Do a TRACE request on the connected HTTP server.
 :param separator: Query parameter separator
 
 :return: (mixed) Response data; Exception on error
-:since:  v0.1.1
+:since:  v1.0.0
         """
 
         params = self._build_request_parameters(params, separator)
@@ -362,7 +348,7 @@ if the private key is not part of the certificate file.
 :param cert_file_name: Path and file name of the PEM-encoded certificate file
 :param key_file_name: Path and file name of the private key
 
-:since: v0.1.1
+:since: v1.0.0
         """
 
         self.pem_cert_file_name = cert_file_name

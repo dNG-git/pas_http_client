@@ -1,11 +1,11 @@
 # -*- coding: utf-8 -*-
 
 """
-RFC compliant and simple HTTP client
-An abstracted programming interface for an HTTP client
+direct PAS
+Python Application Services
 ----------------------------------------------------------------------------
 (C) direct Netware Group - All rights reserved
-https://www.direct-netware.de/redirect?py;rfc_http_client
+https://www.direct-netware.de/redirect?pas;http;client
 
 This Source Code Form is subject to the terms of the Mozilla Public License,
 v. 2.0. If a copy of the MPL was not distributed with this file, You can
@@ -13,31 +13,31 @@ obtain one at http://mozilla.org/MPL/2.0/.
 ----------------------------------------------------------------------------
 https://www.direct-netware.de/redirect?licenses;mpl2
 ----------------------------------------------------------------------------
-#echo(rfcHttpClientVersion)#
+#echo(pasHttpClientVersion)#
 #echo(__FILEPATH__)#
 """
 
-from dNG.data.http.response import Response
-
 from .raw_client import RawClient
+from .response import Response
 
 class Client(RawClient):
     """
 HTTP client for requesting and parsing data.
 
-:author:    direct Netware Group
-:copyright: (C) direct Netware Group - All rights reserved
-:package:   rfc_http_client.py
-:since:     v0.1.0
-:license:   https://www.direct-netware.de/redirect?licenses;mpl2
-            Mozilla Public License, v. 2.0
+:author:     direct Netware Group
+:copyright:  (C) direct Netware Group - All rights reserved
+:package:    pas.http
+:subpackage: client
+:since:      v1.0.0
+:license:    https://www.direct-netware.de/redirect?licenses;mpl2
+             Mozilla Public License, v. 2.0
     """
 
     # pylint: disable=arguments-differ
 
     def __init__(self, url, timeout = 6, event_handler = None):
         """
-Constructor __init__(Http)
+Constructor __init__(Client)
 
 :param url: URL to be called
 :param timeout: Connection timeout in seconds
@@ -45,20 +45,20 @@ Constructor __init__(Http)
                       if true.
 :param event_handler: EventHandler to use
 
-:since: v0.1.0
+:since: v1.0.0
         """
 
         RawClient.__init__(self, url, timeout, True, event_handler)
     #
 
-    def _init_response(self, raw_response):
+    def _new_response(self, raw_response):
         """
 Initializes an HTTP response object based on the received raw data.
 
 :param raw_response: Raw response dict
 
 :return: (object) Response object
-:since:  v0.1.1
+:since:  v1.0.0
         """
 
         # pylint: disable=protected-access
@@ -83,10 +83,10 @@ Call a given request method on the connected HTTP server.
 :param data: HTTP body
 
 :return: (object) Response object
-:since:  v0.1.0
+:since:  v1.0.0
         """
 
         raw_response = RawClient.request(self, method, separator, params, data)
-        return self._init_response(raw_response)
+        return self._new_response(raw_response)
     #
 #

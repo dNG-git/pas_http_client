@@ -1,9 +1,13 @@
 ----------------------------------------------------------------------------
-RFC compliant and simple HTTP client
-An abstracted programming interface for an HTTP client
+direct PAS
+Python Application Services
 ----------------------------------------------------------------------------
 
-A python based, compliant and simple HTTP client encapsulating Python's
+The Python Application Services of the direct Netware Group contain
+different modules. Each represents one aspect, feature or provides the base
+functionality for other modules.
+
+"pas-http-client" provides a simple HTTP client encapsulating Python's
 native one.
 
 ----------------------------------------------------------------------------

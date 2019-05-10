@@ -1,11 +1,11 @@
 # -*- coding: utf-8 -*-
 
 """
-RFC compliant and simple HTTP client
-An abstracted programming interface for an HTTP client
+direct PAS
+Python Application Services
 ----------------------------------------------------------------------------
 (C) direct Netware Group - All rights reserved
-https://www.direct-netware.de/redirect?py;rfc_http_client
+https://www.direct-netware.de/redirect?pas;http;client
 
 This Source Code Form is subject to the terms of the Mozilla Public License,
 v. 2.0. If a copy of the MPL was not distributed with this file, You can
@@ -13,7 +13,7 @@ obtain one at http://mozilla.org/MPL/2.0/.
 ----------------------------------------------------------------------------
 https://www.direct-netware.de/redirect?licenses;mpl2
 ----------------------------------------------------------------------------
-#echo(rfcHttpClientVersion)#
+#echo(pasHttpClientVersion)#
 #echo(__FILEPATH__)#
 """
 
@@ -28,37 +28,25 @@ except ImportError:
     from urlparse import urlsplit
 #
 
-from dNG.data.rfc.header import Header
-
-try:
-    _PY_BYTES = unicode.encode
-    _PY_BYTES_DECL = str
-    _PY_BYTES_TYPE = str
-    _PY_STR = unicode.encode
-    _PY_UNICODE = str.decode
-    _PY_UNICODE_TYPE = unicode
-except NameError:
-    _PY_BYTES = str.encode
-    _PY_BYTES_DECL = lambda x: bytes(x, "raw_unicode_escape")
-    _PY_BYTES_TYPE = bytes
-    _PY_STR = bytes.decode
-    _PY_UNICODE = bytes.decode
-    _PY_UNICODE_TYPE = str
-#
+from dpt_runtime.binary import Binary
+from dpt_runtime.not_implemented_exception import NotImplementedException
+from dpt_runtime.type_exception import TypeException
+from pas_rfc_basics.header import Header
 
 class AbstractRawClient(object):
     """
 Abstract HTTP-like client abstraction layer returning raw responses.
 
-:author:    direct Netware Group
-:copyright: (C) direct Netware Group - All rights reserved
-:package:   rfc_http_client.py
-:since:     v1.0.0
-:license:   https://www.direct-netware.de/redirect?licenses;mpl2
-            Mozilla Public License, v. 2.0
+:author:     direct Netware Group
+:copyright:  (C) direct Netware Group - All rights reserved
+:package:    pas.http
+:subpackage: client
+:since:      v1.0.0
+:license:    https://www.direct-netware.de/redirect?licenses;mpl2
+             Mozilla Public License, v. 2.0
     """
 
-    BINARY_NEWLINE = _PY_BYTES_DECL("\r\n")
+    BINARY_NEWLINE = Binary.bytes("\r\n")
     """
 Newline bytes used in raw HTTP data
     """
@@ -75,8 +63,6 @@ Constructor __init__(AbstractRawClient)
 
 :since: v1.0.0
         """
-
-        # global: _PY_STR, _PY_UNICODE_TYPE
 
         self.auth_username = None
         """
@@ -128,11 +114,8 @@ Request scheme
 Socket timeout in seconds
         """
 
-        if (str is not _PY_UNICODE_TYPE and type(url) is _PY_UNICODE_TYPE): url = _PY_STR(url, "utf-8")
-        if (type(url) is not str): raise TypeError("URL given is invalid")
-
         if (log_handler is not None): self.log_handler = log_handler
-        self._configure(url)
+        self.url = url
     #
 
     @property
@@ -193,7 +176,9 @@ Sets a new URL for all subsequent requests.
 :since: v1.0.0
         """
 
-        if (str is not _PY_UNICODE_TYPE and type(url) is _PY_UNICODE_TYPE): url = _PY_STR(url, "utf-8")
+        url = Binary.str(url)
+        if (type(url) is not str): raise TypeException("URL given is invalid")
+
         self._configure(url)
     #
 
@@ -205,7 +190,7 @@ Build a HTTP query string based on the given parameters and the separator.
 :param separator: Query parameter separator
 
 :return: (mixed) Response data; Exception on error
-:since:  v0.1.1
+:since:  v1.0.0
         """
 
         _return = None
@@ -231,10 +216,10 @@ Configures the HTTP connection for later use.
 
 :param url: URL to be called
 
-:since: v0.1.1
+:since: v1.0.0
         """
 
-        raise NotImplementedError()
+        raise NotImplementedException()
     #
 
     def request(self, method, separator = ";", params = None, data = None):
@@ -247,10 +232,9 @@ Call a given request method on the connected HTTP server.
 :param data: HTTP body
 
 :return: (dict) Response data; 'body' may contain the catched exception
-:since:  v0.1.1
+:since:  v1.0.0
         """
 
-        # global: _PY_BYTES, _PY_BYTES_TYPE, _PY_STR
         # pylint: disable=broad-except,star-args
 
         if (self._log_handler is not None): self._log_handler.debug("#echo(__FILEPATH__)# -{0!r}.request({1})- (#echo(__LINE__)#)".format(self, method))
@@ -276,16 +260,15 @@ Call a given request method on the connected HTTP server.
                     data = urlencode(data)
                 #
 
-                if (type(data) is not _PY_BYTES_TYPE): data = _PY_BYTES(data, "raw_unicode_escape")
-                kwargs['body'] = data
+                kwargs['body'] = Binary.utf8_bytes(data)
             #
 
             if (self.auth_username is not None):
                 auth_data = "{0}:{1}".format(self.auth_username, self.auth_password)
 
-                if (type(auth_data) is not _PY_BYTES_TYPE): auth_data = _PY_BYTES(auth_data, "utf-8")
+                if (type(auth_data) is not Binary.BYTES_TYPE): auth_data = Binary.utf8_bytes(auth_data)
                 base64_data = b64encode(auth_data)
-                if (type(base64_data) is not str): base64_data = _PY_STR(base64_data, "raw_unicode_escape")
+                if (type(base64_data) is not str): base64_data = Binary.str(base64_data)
 
                 kwargs['headers'] = { "Authorization": "Basic {0}".format(base64_data) }
                 if (headers is not None): kwargs['headers'].update(headers)
@@ -304,17 +287,17 @@ Sends the request to the connected HTTP server and returns the result.
 :param method: HTTP method
 
 :return: (dict) Response data; 'body' may contain the catched Exception
-:since:  v0.1.1
+:since:  v1.0.0
         """
 
-        raise NotImplementedError()
+        raise NotImplementedException()
     #
 
     def reset_headers(self):
         """
 Resets previously set headers.
 
-:since: v0.1.1
+:since: v1.0.0
         """
 
         self.headers = { }
@@ -327,7 +310,7 @@ Sets the basic authentication data.
 :param username: Username
 :param password: Password
 
-:since: v0.1.1
+:since: v1.0.0
         """
 
         self.auth_username = ("" if (username is None) else username)
@@ -342,7 +325,7 @@ Sets a header.
 :param value: Header value as string or array
 :param value_appends: True if headers should be appended
 
-:since: v0.1.1
+:since: v1.0.0
         """
 
         if (self.headers is None): self.headers = { }
@@ -364,7 +347,7 @@ addresses.
 
 :param interface: Header name
 
-:since: v0.1.1
+:since: v1.0.0
         """
 
         self.ipv6_link_local_interface = interface
@@ -378,10 +361,10 @@ Returns a RFC 7231 compliant dict of headers from the entire HTTP response.
 :param data: Input message
 
 :return: (str) Dict with parsed headers; None on error
-:since:  v0.1.1
+:since:  v1.0.0
         """
 
-        if (type(data) is not str): data = _PY_STR(data, "raw_unicode_escape")
+        if (type(data) is not str): data = Binary.str(data)
         header = data.split("\r\n\r\n", 1)[0]
         _return = Header.get_headers(header)
 
