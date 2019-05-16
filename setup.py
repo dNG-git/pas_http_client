@@ -59,7 +59,7 @@ with TemporaryDirectory(dir = ".") as build_directory:
                "package_dir": { "": package_dir },
                "packages": [ "pas_http_client" ],
                "data_files": [ ( "docs", [ "LICENSE", "README" ]) ],
-               "test_suite" : "tests"
+               "test_suite": "tests"
              }
 
     # Override build_py to first run builder.py
