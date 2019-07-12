@@ -73,6 +73,34 @@ Path and file name of the private key
         AbstractRawClient.__init__(self, url, timeout, return_reader, log_handler)
     #
 
+    @property
+    def _tls_kwargs(self):
+        """
+Returns arguments to be used for creating an SSL/TLS connection.
+
+:return: (dict) Connection arguments
+:since:  v1.0.0
+        """
+
+        _return = { }
+
+        if (hasattr(ssl, "create_default_context")):
+            ssl_context = ssl.create_default_context()
+
+            if (self.pem_cert_file_name is not None):
+                if (self.pem_key_file_name is not None): ssl_context.load_cert_chain(self.pem_cert_file_name, self.pem_key_file_name)
+                else: ssl_context.load_cert_chain(self.pem_cert_file_name)
+            #
+
+            _return['context'] = ssl_context
+        elif (self.pem_cert_file_name is not None):
+            if (self.pem_key_file_name is not None): _return['key_file'] = self.pem_key_file_name
+            _return['cert_file'] = self.pem_cert_file_name
+        #
+
+        return _return
+    #
+
     @AbstractRawClient.url.getter
     def url(self):
         """
@@ -94,8 +122,8 @@ Returns the URL used for all subsequent requests.
         _return += self.host
 
         if ((self.scheme != "https" or self.port != http_client.HTTPS_PORT)
-                and (self.scheme != "http" or self.port != http_client.HTTP_PORT)
-        ): _return += ":{0:d}".format(self.port)
+            and (self.scheme != "http" or self.port != http_client.HTTP_PORT)
+           ): _return += ":{0:d}".format(self.port)
 
         _return += self.path
 
@@ -142,48 +170,19 @@ Returns a connection to the HTTP server.
         if (self.connection is None):
             if (":" in self.host):
                 host = self.host[1:-1]
-                if (host[:6] == "fe80::" and self.ipv6_link_local_interface is not None): host = "{0}%{1}".format(self.host[1:-1], self.ipv6_link_local_interface)
+
+                if (host[:6] == "fe80::"
+                    and self.ipv6_link_local_interface is not None
+                   ): host = "{0}%{1}".format(self.host[1:-1], self.ipv6_link_local_interface)
             else: host = self.host
 
-            if (self.scheme == "https"):
-                kwargs = self._get_ssl_connection_arguments()
+            kwargs = (self._tls_kwargs if (self.scheme == "https") else { })
 
-                try: self.connection = http_client.HTTPSConnection(host, self.port, timeout = self.timeout, **kwargs)
-                except TypeError: self.connection = http_client.HTTPSConnection(host, self.port, **kwargs)
-            else:
-                try: self.connection = http_client.HTTPConnection(host, self.port, timeout = self.timeout)
-                except TypeError: self.connection = http_client.HTTPConnection(host, self.port)
-            #
+            try: self.connection = http_client.HTTPSConnection(host, self.port, timeout = self.timeout, **kwargs)
+            except TypeError: self.connection = http_client.HTTPSConnection(host, self.port, **kwargs)
         #
 
         return self.connection
-    #
-
-    def _get_ssl_connection_arguments(self):
-        """
-Returns arguments to be used for creating an SSL connection.
-
-:return: (dict) SSL connection arguments
-:since:  v1.0.0
-        """
-
-        _return = { }
-
-        if (hasattr(ssl, "create_default_context")):
-            ssl_context = ssl.create_default_context()
-
-            if (self.pem_cert_file_name is not None):
-                if (self.pem_key_file_name): ssl_context.load_cert_chain(self.pem_cert_file_name, self.pem_key_file_name)
-                else: ssl_context.load_cert_chain(self.pem_cert_file_name)
-            #
-
-            _return['context'] = ssl_context
-        elif (self.pem_cert_file_name is not None):
-            if (self.pem_key_file_name): _return['key_file'] = self.pem_key_file_name
-            _return['cert_file'] = self.pem_cert_file_name
-        #
-
-        return _return
     #
 
     def _request(self, method, **kwargs):
