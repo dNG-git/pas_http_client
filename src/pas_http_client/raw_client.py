@@ -48,6 +48,12 @@ Minimal HTTP client abstraction layer returning raw HTTP responses.
              Mozilla Public License, v. 2.0
     """
 
+    __slots__ = [ "_pem_cert_file_name", "_pem_key_file_name" ]
+    """
+python.org: __slots__ reserves space for the declared variables and prevents
+the automatic creation of __dict__ and __weakref__ for each instance.
+    """
+
     def __init__(self, url, timeout = 30, return_reader = False, log_handler = None):
         """
 Constructor __init__(RawClient)
@@ -61,11 +67,11 @@ Constructor __init__(RawClient)
 :since: v1.0.0
         """
 
-        self.pem_cert_file_name = None
+        self._pem_cert_file_name = None
         """
 Path and file name of the PEM-encoded certificate file
         """
-        self.pem_key_file_name = None
+        self._pem_key_file_name = None
         """
 Path and file name of the private key
         """
@@ -87,15 +93,15 @@ Returns arguments to be used for creating an SSL/TLS connection.
         if (hasattr(ssl, "create_default_context")):
             ssl_context = ssl.create_default_context()
 
-            if (self.pem_cert_file_name is not None):
-                if (self.pem_key_file_name is not None): ssl_context.load_cert_chain(self.pem_cert_file_name, self.pem_key_file_name)
-                else: ssl_context.load_cert_chain(self.pem_cert_file_name)
+            if (self._pem_cert_file_name is not None):
+                if (self._pem_key_file_name is not None): ssl_context.load_cert_chain(self._pem_cert_file_name, self._pem_key_file_name)
+                else: ssl_context.load_cert_chain(self._pem_cert_file_name)
             #
 
             _return['context'] = ssl_context
-        elif (self.pem_cert_file_name is not None):
-            if (self.pem_key_file_name is not None): _return['key_file'] = self.pem_key_file_name
-            _return['cert_file'] = self.pem_cert_file_name
+        elif (self._pem_cert_file_name is not None):
+            if (self._pem_key_file_name is not None): _return['key_file'] = self._pem_key_file_name
+            _return['cert_file'] = self._pem_cert_file_name
         #
 
         return _return
@@ -112,10 +118,10 @@ Returns the URL used for all subsequent requests.
 
         _return = "{0}://".format(self.scheme)
 
-        if (self.auth_username is not None or self.auth_password is not None):
-            if (self.auth_username is not None): _return += quote_plus(self.auth_username)
+        if (self._auth_name is not None or self._auth_password is not None):
+            if (self._auth_name is not None): _return += quote_plus(self._auth_name)
             _return += ":"
-            if (self.auth_password is not None): _return += quote_plus(self.auth_password)
+            if (self._auth_password is not None): _return += quote_plus(self._auth_password)
             _return += "@"
         #
 
@@ -144,8 +150,8 @@ Configures the HTTP connection parameters for later use.
 
         if (url_elements.hostname is None): raise TypeException("URL given is invalid")
 
-        self.auth_username = (None if (url_elements.username is None) else url_elements.username)
-        self.auth_password = (None if (url_elements.password is None) else url_elements.password)
+        self._auth_name = (None if (url_elements.username is None) else url_elements.username)
+        self._auth_password = (None if (url_elements.password is None) else url_elements.password)
 
         self.host = ("[{0}]".format(url_elements.hostname) if (":" in url_elements.hostname) else url_elements.hostname)
 
@@ -204,12 +210,12 @@ Sends the request to the connected HTTP server and returns the result.
         _return = { "code": response.status, "headers": { }, "body": None }
         for header in response.getheaders(): _return['headers'][header[0].lower().replace("-", "_")] = header[1]
 
-        if (self.return_reader): _return['body_reader'] = response.read
+        if (self._return_reader): _return['body_reader'] = response.read
 
         if (response.status < 100 or response.status >= 400):
             _return['body'] = http_client.HTTPException("{0} {1}".format(str(response.status), str(response.reason)), response.status)
-            if (self._log_handler is not None): self._log_handler.debug("#echo(__FILEPATH__)# -RawClient._request()- reporting: {0:d} for '{1}'".format(response.status, response.read()))
-        elif (method != "HEAD" and (not self.return_reader)): _return['body'] = response.read()
+            if (self._log_handler is not None): self._log_handler.debug("#echo(__FILEPATH__)# -RawClient._request()- reporting: {0:d} for '{1}'", response.status, response.read())
+        elif (method != "HEAD" and (not self._return_reader)): _return['body'] = response.read()
 
         return _return
     #
@@ -350,7 +356,7 @@ if the private key is not part of the certificate file.
 :since: v1.0.0
         """
 
-        self.pem_cert_file_name = cert_file_name
-        self.pem_key_file_name = key_file_name
+        self._pem_cert_file_name = cert_file_name
+        self._pem_key_file_name = key_file_name
     #
 #

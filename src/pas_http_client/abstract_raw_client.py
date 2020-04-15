@@ -51,6 +51,25 @@ Abstract HTTP-like client abstraction layer returning raw responses.
 Newline bytes used in raw HTTP data
     """
 
+    __slots__ = [ "__weakref__",
+                  "_auth_name",
+                  "_auth_password",
+                  "connection",
+                  "headers",
+                  "host",
+                  "ipv6_link_local_interface",
+                  "_log_handler",
+                  "path",
+                  "port",
+                  "_return_reader",
+                  "scheme",
+                  "timeout"
+                ]
+    """
+python.org: __slots__ reserves space for the declared variables and prevents
+the automatic creation of __dict__ and __weakref__ for each instance.
+    """
+
     def __init__(self, url, timeout = 30, return_reader = False, log_handler = None):
         """
 Constructor __init__(AbstractRawClient)
@@ -64,13 +83,13 @@ Constructor __init__(AbstractRawClient)
 :since: v1.0.0
         """
 
-        self.auth_username = None
+        self._auth_name = None
         """
-Request authorisation username
+Request authorization username
         """
-        self.auth_password = None
+        self._auth_password = None
         """
-Request authorisation password
+Request authorization password
         """
         self.connection = None
         """
@@ -101,7 +120,7 @@ Request path
         """
 Request port
         """
-        self.return_reader = return_reader
+        self._return_reader = return_reader
         """
 True if the client returns a callable reader supporting a size argument.
         """
@@ -154,10 +173,10 @@ Returns the URL used for all subsequent requests.
 
         _return = "{0}://".format(self.scheme)
 
-        if (self.auth_username is not None or self.auth_password is not None):
-            if (self.auth_username is not None): _return += quote_plus(self.auth_username, "")
+        if (self._auth_name is not None or self._auth_password is not None):
+            if (self._auth_name is not None): _return += quote_plus(self._auth_name, "")
             _return += ":"
-            if (self.auth_password is not None): _return += quote_plus(self.auth_password, "")
+            if (self._auth_password is not None): _return += quote_plus(self._auth_password, "")
             _return += "@"
         #
 
@@ -237,7 +256,7 @@ Call a given request method on the connected HTTP server.
 
         # pylint: disable=broad-except,star-args
 
-        if (self._log_handler is not None): self._log_handler.debug("#echo(__FILEPATH__)# -{0!r}.request({1})- (#echo(__LINE__)#)".format(self, method))
+        if (self._log_handler is not None): self._log_handler.debug("#echo(__FILEPATH__)# -{0!r}.request({1})- (#echo(__LINE__)#)", self, method)
 
         try:
             path = self.path
@@ -263,8 +282,8 @@ Call a given request method on the connected HTTP server.
                 kwargs['body'] = Binary.utf8_bytes(data)
             #
 
-            if (self.auth_username is not None):
-                auth_data = "{0}:{1}".format(self.auth_username, self.auth_password)
+            if (self._auth_name is not None):
+                auth_data = "{0}:{1}".format(self._auth_name, self._auth_password)
 
                 if (type(auth_data) is not Binary.BYTES_TYPE): auth_data = Binary.utf8_bytes(auth_data)
                 base64_data = b64encode(auth_data)
@@ -313,8 +332,8 @@ Sets the basic authentication data.
 :since: v1.0.0
         """
 
-        self.auth_username = ("" if (username is None) else username)
-        self.auth_password = ("" if (password is None) else password)
+        self._auth_name = ("" if (username is None) else username)
+        self._auth_password = ("" if (password is None) else password)
     #
 
     def set_header(self, name, value, value_appends = False):

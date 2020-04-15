@@ -30,6 +30,12 @@ HTTP response object handling chunked transfer-encoded data transparently.
              Mozilla Public License, v. 2.0
     """
 
+    __slots__ = [ "body_reader", "_code", "_exception", "_headers" ]
+    """
+python.org: __slots__ reserves space for the declared variables and prevents
+the automatic creation of __dict__ and __weakref__ for each instance.
+    """
+
     def __init__(self):
         """
 Constructor __init__(Response)
@@ -37,7 +43,7 @@ Constructor __init__(Response)
 :since: v1.0.0
         """
 
-        self.body_reader = None
+        self._body_reader = None
         """
 Body reader callable
         """
@@ -115,7 +121,7 @@ exception occurred while processing the request.
 :since:  v1.0.0
         """
 
-        return (self.body_reader is not None and self.exception is None)
+        return (self._body_reader is not None and self.exception is None)
     #
 
     def get_header(self, name):
@@ -144,7 +150,7 @@ handled automatically.
 :since:  v1.0.0
         """
 
-        return (self.body_reader() if (n < 1) else self.body_reader(n))
+        return (self._body_reader() if (n < 1) else self._body_reader(n))
     #
 
     def _set_body_reader(self, body_reader):
@@ -156,7 +162,7 @@ Sets the body reader callable of this response object.
 :since: v1.0.0
         """
 
-        self.body_reader = body_reader
+        self._body_reader = body_reader
     #
 
     def _set_code(self, code):
